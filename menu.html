@@ -1,0 +1,1678 @@
+t<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BARTENDER — Where Everybody Knows Your Name</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:       #0B0705;
+      --dark2:      #160F08;
+      --dark3:      #221508;
+      --parchment:  #F2E8C6;
+      --parchment2: #E6D8A8;
+      --gold:       #C8941A;
+      --gold2:      #E8B830;
+      --copper:     #A05A20;
+      --ink:        #1A0E06;
+      --text:       #EEE0BC;
+      --red:        #8B1A1A;
+      --green:      #1A6B2A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Heebo', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      overflow: hidden;
+      direction: rtl;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #app {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      height: 100svh;
+      height: 100vh;
+      margin: 0 auto;
+      overflow: hidden;
+      background: var(--dark);
+    }
+
+    /* ─── SCREEN SYSTEM ─────────────────────────────────── */
+    .screen {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      transform: translateX(110%);
+      transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+      z-index: 2;
+      background: var(--dark);
+    }
+    .screen.active  { transform: translateX(0); }
+    .screen.exiting { transform: translateX(110%); }
+    .screen::-webkit-scrollbar { width: 0; }
+
+    #home {
+      transform: translateX(0);
+      z-index: 1;
+      overflow-y: auto;
+    }
+
+    /* ─── HOME SCREEN ───────────────────────────────────── */
+    .home-wrap {
+      min-height: 100%;
+      background:
+        radial-gradient(ellipse at 10% 15%, rgba(200,148,26,.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 85%, rgba(160,90,32,.12) 0%, transparent 55%),
+        var(--dark);
+      padding: 18px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* grain texture */
+    .home-wrap::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+      opacity: 0.6;
+    }
+
+    .home-header {
+      text-align: center;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .truck-emoji {
+      font-size: 65px;
+      line-height: 1;
+      animation: float 4s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-5px); }
+    }
+
+    .brand-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 54px;
+      letter-spacing: 10px;
+      color: var(--gold);
+      line-height: 1;
+      text-shadow: 0 0 40px rgba(200,148,26,.45), 0 2px 0 rgba(0,0,0,.6);
+    }
+
+    .brand-sub {
+      font-size: 10.5px;
+      font-weight: 300;
+      letter-spacing: 2.5px;
+      color: rgba(238,224,188,.45);
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .ornament::before,
+    .ornament::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .ornament span { color: var(--gold); font-size: 12px; }
+
+    /* ─── NAV GRID ─────────────────────────── */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 11px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-card {
+      background: linear-gradient(140deg, var(--dark2) 0%, rgba(200,148,26,.07) 100%);
+      border: 1px solid rgba(200,148,26,.2);
+      border-radius: 18px;
+      padding: 18px 8px 14px;
+      text-align: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 86px;
+      position: relative;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .nav-card:active {
+      transform: scale(0.93);
+      background: rgba(200,148,26,.14);
+      border-color: rgba(200,148,26,.5);
+    }
+
+    .nav-card.wide {
+      grid-column: span 3;
+      flex-direction: row;
+      min-height: 68px;
+      gap: 14px;
+      padding: 14px 20px;
+      justify-content: flex-start;
+    }
+    .nav-card.wide .nav-label { font-size: 16px; }
+
+    .nav-card.wide2 {
+      grid-column: span 2;
+      flex-direction: row;
+      min-height: 68px;
+      gap: 14px;
+      padding: 14px 20px;
+      justify-content: flex-start;
+    }
+    .nav-card.wide2 .nav-label { font-size: 16px; }
+
+    /* ─── GALLERY ─────────────────── */
+    .gallery-wrap { padding: 16px 15px 50px; }
+    .gallery-img-wrap {
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.55);
+    }
+    .gallery-img { width: 100%; height: auto; display: block; }
+
+    .nav-icon { font-size: 30px; line-height: 1; }
+    .nav-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--parchment);
+      line-height: 1.25;
+    }
+
+    /* badge */
+    .badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--red);
+      color: #fff;
+      font-size: 8.5px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 20px;
+      letter-spacing: .5px;
+      animation: badgePulse 2s infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139,26,26,.5); }
+      50%       { transform: scale(1.08); box-shadow: 0 0 0 4px rgba(139,26,26,0); }
+    }
+
+    /* ─── CARD INFO STRIP ─────────────── */
+    .card-strip {
+      position: relative;
+      z-index: 1;
+      background: rgba(200,148,26,.09);
+      border: 1px solid rgba(200,148,26,.22);
+      border-radius: 14px;
+      padding: 11px 15px;
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-strip-text { font-size: 11px; color: rgba(238,224,188,.55); }
+    .card-strip-highlight { font-size: 13.5px; font-weight: 700; color: var(--gold); }
+
+    /* ─── SCREEN HEADER ─────────────────────────────────── */
+    .screen-hdr {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(11,7,5,.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(200,148,26,.2);
+      padding: 12px 14px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: rgba(200,148,26,.12);
+      border: 1px solid rgba(200,148,26,.28);
+      color: var(--gold);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.15s;
+      line-height: 1;
+    }
+    .back-btn:active { transform: scale(0.88); }
+
+    .hdr-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      flex: 1;
+    }
+
+    .hdr-icon { font-size: 26px; }
+
+    /* ─── CONTENT AREA ──────────────────────────────────── */
+    .content {
+      padding: 18px 15px 50px;
+    }
+
+    /* ─── SECTION TITLE ─────────────────────────────────── */
+    .sec-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 2.5px;
+      color: var(--gold);
+      border-bottom: 1px solid rgba(200,148,26,.3);
+      padding-bottom: 7px;
+      margin-bottom: 12px;
+      margin-top: 26px;
+    }
+    .sec-title:first-child { margin-top: 0; }
+
+    /* ─── MENU ITEM ─────────────────────────────────────── */
+    .item {
+      background: linear-gradient(135deg, var(--parchment) 0%, var(--parchment2) 100%);
+      border-radius: 14px;
+      padding: 13px 13px 11px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.32s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .item::before {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 5px;
+      background: var(--copper);
+      border-radius: 0 14px 14px 0;
+    }
+    .item.is-new::before { background: var(--red); }
+
+    .item-info { flex: 1; min-width: 0; }
+
+    .item-name {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+    .item-desc {
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(26,14,6,.58);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+    .new-tag {
+      display: inline-block;
+      background: var(--red);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 6px;
+      letter-spacing: .5px;
+    }
+
+    /* ─── RIGHT SIDE (PUNCHES + LIKE) ─── */
+    .item-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .punch-display {
+      background: var(--ink);
+      border-radius: 10px;
+      padding: 6px 10px;
+      text-align: center;
+      min-width: 54px;
+    }
+    .punch-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      color: var(--gold2);
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+    .punch-sub {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(242,232,193,.6);
+      letter-spacing: .3px;
+    }
+    .punch-nis {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--parchment2);
+      margin-top: 2px;
+    }
+
+    /* ─── LIKE BUTTON ────────────────────── */
+    .like-btn {
+      background: transparent;
+      border: 1.5px solid rgba(26,14,6,.25);
+      border-radius: 20px;
+      padding: 5px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: rgba(26,14,6,.5);
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .like-btn.liked {
+      background: rgba(139,26,26,.12);
+      border-color: var(--red);
+      color: var(--red);
+    }
+    .like-btn:active { transform: scale(0.87); }
+    .like-heart { font-size: 14px; transition: transform 0.2s; }
+    .like-btn.liked .like-heart { transform: scale(1.2); }
+
+    /* ─── ABOUT ─────────────────────────────────────────── */
+    .about-hero {
+      min-height: 220px;
+      background:
+        linear-gradient(to bottom, rgba(11,7,5,.15) 0%, rgba(11,7,5,.75) 60%, var(--dark) 100%),
+        linear-gradient(135deg, #3D2B14 0%, #180F06 40%, #2A1A08 70%, #0B0705 100%);
+      display: flex;
+      align-items: flex-end;
+      padding: 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-hero::before {
+      content: '🚛';
+      position: absolute;
+      font-size: 180px;
+      opacity: .05;
+      right: -10px;
+      top: 10px;
+      transform: scaleX(-1);
+      pointer-events: none;
+    }
+    .about-hero-inner h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 38px;
+      letter-spacing: 4px;
+      color: var(--gold);
+    }
+    .about-hero-inner p {
+      font-size: 12.5px;
+      font-style: italic;
+      color: rgba(238,224,188,.6);
+      margin-top: 3px;
+    }
+
+    .about-body { padding: 22px 18px 50px; }
+
+    .about-text {
+      font-size: 15px;
+      line-height: 1.85;
+      color: rgba(238,224,188,.82);
+      font-weight: 300;
+    }
+    .about-text strong { color: var(--gold); font-weight: 700; }
+
+    .highlights {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 11px;
+      margin-top: 22px;
+    }
+    .hl-card {
+      background: rgba(200,148,26,.08);
+      border: 1px solid rgba(200,148,26,.18);
+      border-radius: 14px;
+      padding: 15px 12px;
+      text-align: center;
+    }
+    .hl-icon { font-size: 26px; margin-bottom: 7px; display: block; }
+    .hl-title { font-size: 12.5px; font-weight: 800; color: var(--gold); }
+    .hl-desc  { font-size: 11px; color: rgba(238,224,188,.55); margin-top: 3px; line-height: 1.5; }
+
+    /* ─── TEAM ──────────────────────────────────────────── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .team-card {
+      background: linear-gradient(135deg, var(--parchment) 0%, var(--parchment2) 100%);
+      border-radius: 16px;
+      padding: 20px 14px 16px;
+      text-align: center;
+      animation: fadeUp 0.35s ease both;
+    }
+    .team-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--copper), var(--gold));
+      border: 3px solid var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin: 0 auto 11px;
+    }
+    .team-name { font-size: 15px; font-weight: 800; color: var(--ink); }
+    .team-role { font-size: 11px; color: var(--copper); font-weight: 700; letter-spacing: .4px; margin-top: 3px; }
+    .team-bio  { font-size: 11px; color: rgba(26,14,6,.52); margin-top: 7px; line-height: 1.5; }
+
+    /* ─── EVENTS ────────────────────────────────────────── */
+    .event-card {
+      background: linear-gradient(135deg, var(--parchment), var(--parchment2));
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      animation: fadeUp 0.35s ease both;
+    }
+    .event-img {
+      height: 150px;
+      background: linear-gradient(135deg, #2C1A0A, #4A2C10, #1A1008);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 72px;
+      position: relative;
+    }
+    .event-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(26,14,6,.55));
+    }
+    .event-body { padding: 14px 14px 12px; }
+    .event-date  { font-size: 10.5px; font-weight: 700; color: var(--copper); letter-spacing: 1px; margin-bottom: 5px; }
+    .event-title { font-size: 17px; font-weight: 900; color: var(--ink); line-height: 1.2; margin-bottom: 7px; }
+    .event-desc  { font-size: 12.5px; color: rgba(26,14,6,.62); line-height: 1.6; margin-bottom: 11px; }
+    .event-footer { display: flex; align-items: center; justify-content: space-between; }
+    .event-tag {
+      background: rgba(160,90,32,.14);
+      border: 1px solid rgba(160,90,32,.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--copper);
+    }
+
+    /* ─── SPECIAL ───────────────────────────────────────── */
+    .special-hero {
+      background: linear-gradient(140deg, #7A1515 0%, #3A0A0A 50%, #1A0808 100%);
+      padding: 36px 20px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .special-hero::before {
+      content: '⭐';
+      position: absolute;
+      font-size: 220px;
+      opacity: .05;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .special-badge-pill {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--ink);
+      font-size: 9.5px;
+      font-weight: 900;
+      padding: 4px 16px;
+      border-radius: 20px;
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+    }
+    .special-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 50px;
+      letter-spacing: 5px;
+      color: #fff;
+      line-height: 1;
+    }
+    .special-desc {
+      font-size: 14px;
+      color: rgba(255,255,255,.65);
+      margin-top: 9px;
+      line-height: 1.65;
+    }
+    .special-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .special-punch-dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 2px solid #fff;
+    }
+    .special-price-txt {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,.75);
+    }
+
+    /* ─── PUNCH CARD VISUAL ─────────────────── */
+    .punch-card-vis {
+      background: var(--parchment);
+      border: 2px dashed var(--copper);
+      border-radius: 14px;
+      padding: 14px 14px 10px;
+      margin-bottom: 18px;
+    }
+    .pcv-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      color: var(--ink);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .pcv-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    .pcv-hole {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9.5px;
+      color: rgba(26,14,6,.35);
+      font-weight: 700;
+      background: transparent;
+    }
+    .pcv-hole.used { background: var(--ink); color: var(--parchment); }
+    .pcv-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 9px;
+      font-size: 10.5px;
+      color: rgba(26,14,6,.55);
+    }
+    .pcv-info strong { color: var(--copper); }
+
+    /* ─── PUB LOGO ─────────────────── */
+    .pub-logo-wrap {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 14px;
+      padding-bottom: 8px;
+    }
+    .pub-logo-img {
+      width: 190px;
+      height: auto;
+      max-height: 90px;
+      object-fit: contain;
+      filter: brightness(0) invert(1) sepia(1) saturate(2) hue-rotate(5deg) brightness(0.85);
+    }
+
+    /* ─── FOOD NOTE ─────────────────── */
+    .food-note {
+      background: rgba(200,148,26,.09);
+      border: 1px solid rgba(200,148,26,.25);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 12.5px;
+      color: rgba(238,224,188,.65);
+      margin-bottom: 20px;
+      line-height: 1.65;
+    }
+
+    /* ─── STAGGERED ANIMATIONS ──────────── */
+    .item:nth-child(1)  { animation-delay: 0.03s; }
+    .item:nth-child(2)  { animation-delay: 0.07s; }
+    .item:nth-child(3)  { animation-delay: 0.11s; }
+    .item:nth-child(4)  { animation-delay: 0.15s; }
+    .item:nth-child(5)  { animation-delay: 0.19s; }
+    .item:nth-child(6)  { animation-delay: 0.23s; }
+    .item:nth-child(7)  { animation-delay: 0.27s; }
+    .item:nth-child(8)  { animation-delay: 0.31s; }
+    .item:nth-child(9)  { animation-delay: 0.35s; }
+
+    .nav-card:nth-child(1) { animation: fadeUp 0.35s 0.08s ease both; }
+    .nav-card:nth-child(2) { animation: fadeUp 0.35s 0.13s ease both; }
+    .nav-card:nth-child(3) { animation: fadeUp 0.35s 0.18s ease both; }
+    .nav-card:nth-child(4) { animation: fadeUp 0.35s 0.23s ease both; }
+    .nav-card:nth-child(5) { animation: fadeUp 0.35s 0.28s ease both; }
+    .nav-card:nth-child(6) { animation: fadeUp 0.35s 0.33s ease both; }
+    .nav-card:nth-child(7) { animation: fadeUp 0.35s 0.38s ease both; }
+
+    .team-card:nth-child(2) { animation-delay: 0.08s; }
+    .team-card:nth-child(3) { animation-delay: 0.12s; }
+    .team-card:nth-child(4) { animation-delay: 0.16s; }
+    .team-card:nth-child(5) { animation-delay: 0.20s; }
+    .team-card:nth-child(6) { animation-delay: 0.24s; }
+
+    .event-card:nth-child(2) { animation-delay: 0.08s; }
+    .event-card:nth-child(3) { animation-delay: 0.14s; }
+
+    /* ─── LANGUAGE TOGGLE ────────────────────── */
+    .lang-toggle {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      background: rgba(200,148,26,.1);
+      border: 1px solid rgba(200,148,26,.22);
+      border-radius: 20px;
+      padding: 3px;
+    }
+    .lang-btn {
+      padding: 5px 12px;
+      border-radius: 16px;
+      border: none;
+      background: transparent;
+      color: rgba(238,224,188,.45);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: 'Heebo', sans-serif;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lang-btn.active {
+      background: var(--gold);
+      color: var(--ink);
+    }
+
+    /* ─── FEEDBACK ─────────────────────────────────────────── */
+    .feedback-latest {
+      background: linear-gradient(135deg, rgba(200,148,26,.18) 0%, rgba(200,148,26,.08) 100%);
+      border: 1.5px solid rgba(200,148,26,.4);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      margin-bottom: 20px;
+    }
+    .feedback-latest-tag {
+      font-size: 9.5px; font-weight: 900; letter-spacing: 2px;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 8px;
+    }
+    .feedback-latest-name { font-size: 14px; font-weight: 800; color: var(--gold); margin-bottom: 5px; }
+    .feedback-latest-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+    .feedback-latest-time { font-size: 10px; color: rgba(238,224,188,.35); margin-top: 8px; }
+
+    .feedback-form {
+      background: rgba(200,148,26,.07);
+      border: 1px solid rgba(200,148,26,.2);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 22px;
+      transition: transform 0.08s;
+    }
+    .feedback-form-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px;
+      color: var(--gold); margin-bottom: 12px;
+    }
+    .feedback-input, .feedback-textarea {
+      width: 100%;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(200,148,26,.25);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: 'Heebo', sans-serif;
+      font-size: 14px; color: var(--text);
+      margin-bottom: 10px; outline: none;
+      -webkit-appearance: none; direction: rtl;
+      box-sizing: border-box;
+    }
+    .feedback-input::placeholder, .feedback-textarea::placeholder { color: rgba(238,224,188,.3); }
+    .feedback-input:focus, .feedback-textarea:focus { border-color: rgba(200,148,26,.6); }
+    .feedback-textarea { resize: none; min-height: 80px; }
+    .feedback-submit {
+      width: 100%;
+      background: var(--gold); color: var(--ink);
+      border: none; border-radius: 12px;
+      padding: 13px;
+      font-family: 'Heebo', sans-serif;
+      font-size: 15px; font-weight: 900;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .feedback-submit:active { transform: scale(0.96); background: var(--gold2); }
+    .feedback-divider {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px; letter-spacing: 2px;
+      color: var(--gold);
+      border-bottom: 1px solid rgba(200,148,26,.25);
+      padding-bottom: 7px; margin-bottom: 14px;
+    }
+    .feedback-item {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(200,148,26,.15);
+      border-radius: 14px;
+      padding: 13px 14px; margin-bottom: 10px;
+      animation: fadeUp 0.3s ease both;
+    }
+    .feedback-item-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 6px;
+    }
+    .feedback-item-name { font-size: 13px; font-weight: 800; color: var(--gold); }
+    .feedback-item-time { font-size: 10px; color: rgba(238,224,188,.3); }
+    .feedback-item-text { font-size: 13px; color: rgba(238,224,188,.8); line-height: 1.55; }
+    .feedback-empty { text-align: center; color: rgba(238,224,188,.3); font-size: 13px; padding: 20px 0; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════════════ HOME ══════════════════ -->
+  <div id="home" class="screen">
+    <div class="home-wrap">
+
+      <div class="home-header">
+        <div class="brand-title">BARTENDER</div>
+        <div class="ornament"><span class="truck-emoji">🍺</span></div>
+        <div class="brand-sub">where everybody knows your name</div>
+      </div>
+
+      <div class="nav-grid">
+        <div class="nav-card" onclick="go('about')">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-label" id="nl-about">על הבר</span>
+        </div>
+        <div class="nav-card" onclick="go('team')">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label" id="nl-team">הצוות שלנו</span>
+        </div>
+        <div class="nav-card" onclick="go('soft')">
+          <span class="nav-icon">🥤</span>
+          <span class="nav-label" id="nl-soft">שתייה קלה</span>
+        </div>
+        <div class="nav-card" onclick="go('spirits')">
+          <span class="nav-icon">🥃</span>
+          <span class="nav-label" id="nl-spirits">שתייה חריפה</span>
+        </div>
+        <div class="nav-card" id="badge-special" onclick="go('special')">
+          <span class="badge" id="badge-special-dot" style="display:none">חדש ✦</span>
+          <span class="nav-icon">⭐</span>
+          <span class="nav-label" id="nl-special">ספיישל היום</span>
+        </div>
+        <div class="nav-card" id="badge-events" onclick="go('events')">
+          <span class="badge" id="badge-events-dot" style="display:none">חדש ✦</span>
+          <span class="nav-icon">🎉</span>
+          <span class="nav-label" id="nl-events">אירועי החודש</span>
+        </div>
+        <div class="nav-card" onclick="go('food')">
+          <span class="nav-icon">🍽️</span>
+          <span class="nav-label" id="nl-food">אוכל</span>
+        </div>
+        <div class="nav-card" onclick="go('gallery')">
+          <span class="nav-icon">📸</span>
+          <span class="nav-label" id="nl-gallery">תמונות</span>
+        </div>
+        <div class="nav-card" style="cursor:default;opacity:0.7;">
+          <img src="card front side.jpg" alt="כרטיסיה" style="width:52px;height:auto;border-radius:6px;object-fit:cover;">
+          <span class="nav-label" id="nl-payment">רכישת כרטיסיה</span>
+        </div>
+        <div class="nav-card wide" onclick="go('feedback')">
+          <span class="nav-icon">💬</span>
+          <span class="nav-label" id="nl-feedback">פידבקים מהתושבים</span>
+        </div>
+      </div>
+
+      <div class="card-strip">
+        <div>
+          <div class="card-strip-text" id="card-text1">כרטיסיה = 100 ש"ח | 20 ניקובים</div>
+          <div class="card-strip-text" id="card-text2">ניקוב אחד = 5 ש"ח</div>
+        </div>
+        <div class="card-strip-highlight" id="card-cta">🎫 שאל את הברמן</div>
+      </div>
+
+      <div class="pub-logo-wrap">
+        <img src="publogo.jpg" alt="Bartender" class="pub-logo-img">
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="btn-he" onclick="setLang('he')">עב</button>
+          <button class="lang-btn"        id="btn-en" onclick="setLang('en')">EN</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════ ABOUT ══════════════════ -->
+  <div id="about" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-about">על הבר</div>
+      <span class="hdr-icon">🏠</span>
+    </div>
+    <div class="about-hero">
+      <div class="about-hero-inner">
+        <h2>BARTENDER</h2>
+        <p>Refuel and recharge — where everybody knows your name</p>
+      </div>
+    </div>
+    <div class="about-body" id="about-body">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- ══════════════════ TEAM ══════════════════ -->
+  <div id="team" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-team">הצוות שלנו</div>
+      <span class="hdr-icon">👥</span>
+    </div>
+    <div class="content">
+      <div class="team-grid" id="team-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SOFT DRINKS ══════════════════ -->
+  <div id="soft" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-soft">שתייה קלה</div>
+      <span class="hdr-icon">🥤</span>
+    </div>
+    <div class="content" id="soft-content"></div>
+  </div>
+
+  <!-- ══════════════════ SPIRITS ══════════════════ -->
+  <div id="spirits" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-spirits">שתייה חריפה</div>
+      <span class="hdr-icon">🥃</span>
+    </div>
+    <div class="content" id="spirits-content"></div>
+  </div>
+
+  <!-- ══════════════════ SPECIAL ══════════════════ -->
+  <div id="special" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-special">ספיישל היום</div>
+      <span class="hdr-icon">⭐</span>
+    </div>
+    <div class="special-hero" id="special-hero"></div>
+    <div class="content" id="special-content"></div>
+  </div>
+
+  <!-- ══════════════════ EVENTS ══════════════════ -->
+  <div id="events" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-events">אירועי החודש</div>
+      <span class="hdr-icon">🎉</span>
+    </div>
+    <div class="content" id="events-content"></div>
+  </div>
+
+  <!-- ══════════════════ FOOD ══════════════════ -->
+  <div id="food" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-food">אוכל</div>
+      <span class="hdr-icon">🍽️</span>
+    </div>
+    <div class="content">
+      <div class="food-note" id="food-note">
+        🍺 <strong>ליד האלכוהול</strong> — חלקים למנוע שלך. כי כל מנוע טוב צריך שמן!
+      </div>
+      <div id="food-content"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ GALLERY ══════════════════ -->
+  <div id="gallery" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-gallery">תמונות</div>
+      <span class="hdr-icon">📸</span>
+    </div>
+    <div class="gallery-wrap">
+      <div class="gallery-img-wrap">
+        <img src="photo1.jpg" alt="Bartender" class="gallery-img">
+      </div>
+      <div class="gallery-img-wrap">
+        <img src="photo2.jpg" alt="Bartender" class="gallery-img">
+      </div>
+      <div class="gallery-img-wrap">
+        <img src="photo3.jpg" alt="Bartender" class="gallery-img">
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ FEEDBACK ══════════════════ -->
+  <div id="feedback" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="hdr-feedback">פידבקים</div>
+      <span class="hdr-icon">💬</span>
+    </div>
+    <div class="content">
+      <div id="feedback-latest-wrap"></div>
+      <div class="feedback-form">
+        <div class="feedback-form-title" id="fb-form-title">✍️ שתפו אותנו</div>
+        <input class="feedback-input" id="fb-name" type="text" placeholder="השם שלך" maxlength="30">
+        <textarea class="feedback-textarea" id="fb-text" placeholder="ספרו לנו על החוויה שלכם בפאב..." maxlength="300"></textarea>
+        <button class="feedback-submit" onclick="submitFeedback()">שלח פידבק 🍺</button>
+      </div>
+      <div class="feedback-divider" id="fb-all-title">כל הפידבקים</div>
+      <div id="feedback-list"></div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+// ╔═══════════════════════════════════════════════════════╗
+// ║        ✏️  כאן עורכים את כל תוכן התפריט              ║
+// ║   name = עברית  |  nameEn = אנגלית                   ║
+// ╚═══════════════════════════════════════════════════════╝
+
+// ─── הצוות ──────────────────────────────────────────────
+const TEAM = [
+  { emoji: '👨‍🍳', name: 'טרייסי',  nameEn: 'Tracy',   role: 'מיקסולוגית בחסד',    roleEn: 'Head Mixologist',   bio: 'מיקסולוגית מוכשרת. כל קוקטייל — יצירה',  bioEn: 'The finest mixologist. Every cocktail is art' },
+  { emoji: '🍸',  name: 'מרים',    nameEn: 'Miriam',  role: 'הנשמה של המקום',      roleEn: 'Soul of the Place',  bio: 'הנשמה של הבר. יודע את השם של כולם',       bioEn: "The soul of the bar. Knows everyone's name" },
+  { emoji: '🎵',  name: 'אירית',   nameEn: 'Irit',    role: 'מובילה דעת קהל / DJ', roleEn: 'DJ & Bartender',     bio: 'מוזיקה + אלכוהול = ערב מושלם',            bioEn: 'Music + alcohol = perfect night' },
+  { emoji: '🌟',  name: 'רויטל',   nameEn: 'Revital', role: 'אומנית הפרסום',       roleEn: 'Marketing Artist',   bio: 'דיגיטל זה שמה השני',                      bioEn: 'Digital is her middle name' },
+];
+
+// ─── שתייה קלה ───────────────────────────────────────────
+const SOFT = [
+  { id: 'sd1', name: 'קולה',        nameEn: 'Cola',        desc: 'Coca-Cola קלאסי',      punches: 1, isNew: false },
+  { id: 'sd2', name: 'קולה זירו',   nameEn: 'Cola Zero',   desc: 'Diet Coke — ללא סוכר', punches: 1, isNew: false },
+  { id: 'sd3', name: 'ספרייט',      nameEn: 'Sprite',      desc: 'Sprite — רענן וקריר',  punches: 1, isNew: false },
+  { id: 'sd4', name: 'ספרייט זירו', nameEn: 'Sprite Zero', desc: 'ללא סוכר',             punches: 1, isNew: false },
+  { id: 'sd5', name: 'סודה',        nameEn: 'Soda',        desc: 'מים מוגזים',           punches: 1, isNew: false },
+  { id: 'sd6', name: 'טוניק',       nameEn: 'Tonic Water', desc: 'Tonic Water',          punches: 1, isNew: false },
+  { id: 'sd7', name: 'מים',         nameEn: 'Water',       desc: 'מים שתייה',            punches: 1, isNew: false },
+];
+
+// ─── שתייה חריפה ─────────────────────────────────────────
+const SPIRITS = {
+  'תדלוק פרמיום — שוטים': [
+    { id: 'sp1', name: "ג'ין",              nameEn: 'Gin',               desc: 'Gin',                     punches: 3, isNew: false },
+    { id: 'sp2', name: 'טקילה',             nameEn: 'Tequila',           desc: 'Tequila',                 punches: 3, isNew: false },
+    { id: 'sp3', name: 'וודקה',             nameEn: 'Vodka',             desc: 'Vodka',                   punches: 3, isNew: false },
+    { id: 'sp4', name: 'ערק',               nameEn: 'Arak',              desc: 'Arak',                    punches: 3, isNew: false },
+    { id: 'sp5', name: 'רום',               nameEn: 'Rum',               desc: 'Rum',                     punches: 3, isNew: false },
+    { id: 'sp6', name: 'בייליש איירש קרים', nameEn: 'Baileys Irish Cream', desc: 'Baileys Irish Cream',   punches: 3, isNew: false },
+    { id: 'sp7', name: 'ויסקי רגיל',        nameEn: 'Whiskey',           desc: 'Regular Whiskey',         punches: 3, isNew: false },
+    { id: 'sp8', name: 'ויסקי פרמיום',      nameEn: 'Premium Whiskey',   desc: '+3 ניקובים — סה"כ 6',    punches: 6, isNew: false },
+    { id: 'sp9', name: 'קוניאק',            nameEn: 'Cognac',            desc: '+1 ניקוב נוסף — סה"כ 4', punches: 4, isNew: false },
+  ],
+  "צ'ייסרים — שתה וסע (עם נהג תורן)": [
+    { id: 'ch1', name: "ג'ין",       nameEn: 'Gin',          desc: 'Gin shot',         punches: 2, isNew: false },
+    { id: 'ch2', name: 'טקילה',      nameEn: 'Tequila',      desc: 'Tequila shot',     punches: 2, isNew: false },
+    { id: 'ch3', name: 'וודקה',      nameEn: 'Vodka',        desc: 'Vodka shot',       punches: 2, isNew: false },
+    { id: 'ch4', name: 'ערק',        nameEn: 'Arak',         desc: 'Arak shot',        punches: 2, isNew: false },
+    { id: 'ch5', name: 'רום',        nameEn: 'Rum',          desc: 'Rum shot',         punches: 2, isNew: false },
+    { id: 'ch6', name: 'ויסקי רגיל', nameEn: 'Whiskey',      desc: 'Whiskey shot',     punches: 2, isNew: false },
+    { id: 'ch7', name: 'שוקו חם 🔥', nameEn: 'Hot Cocoa 🔥', desc: 'שוקולד חם — חדש!', punches: 1, isNew: true  },
+  ],
+  'מיקס & דרינק — מנה + שתייה קלה': [
+    { id: 'mx1', name: "ג'ין + טוניק",     nameEn: 'Gin & Tonic',         desc: '', punches: 4, isNew: false },
+    { id: 'mx2', name: 'וודקה + נענע עלים', nameEn: 'Vodka & Mint Leaves', desc: '', punches: 4, isNew: false },
+    { id: 'mx3', name: 'טקילה + ספרייט',   nameEn: 'Tequila & Sprite',    desc: '', punches: 4, isNew: false },
+    { id: 'mx4', name: 'ערק + נענע ליים',   nameEn: 'Arak & Lime Mint',    desc: '', punches: 4, isNew: false },
+    { id: 'mx5', name: 'ויסקי פרמיום מיקס', nameEn: 'Premium Whiskey Mix', desc: '+3 ניקובים נוספים', punches: 7, isNew: false },
+  ],
+  'קוקטיילים מיוחדים': [
+    { id: 'co1', name: 'קוקטייל הבית', nameEn: 'House Cocktail', desc: 'שאלו את הברטנדרים — מה הספיישל של היום?', punches: 6, isNew: false },
+  ],
+  'בירות — עצירת דיינון': [
+    { id: 'be1', name: 'בקבוק בירה', nameEn: 'Beer Bottle', desc: 'Beer Bottle',        punches: 2, isNew: false },
+    { id: 'be2', name: 'מלכה 1/3',   nameEn: 'Malca 1/3',  desc: 'Malca Bottle — 1/3', punches: 2, isNew: false },
+    { id: 'be3', name: 'מלכה 1/2',   nameEn: 'Malca 1/2',  desc: 'Malca Bottle — 1/2', punches: 3, isNew: false },
+  ],
+  'יינות — נכנסים להילוך גבוה': [
+    { id: 'wi1', name: 'כוס יין',   nameEn: 'Wine Glass',  desc: 'אדום / לבן / רוזה', punches: 4,  isNew: false },
+    { id: 'wi2', name: 'בקבוק יין', nameEn: 'Wine Bottle', desc: 'אדום / לבן / רוזה', punches: 12, isNew: false },
+  ],
+};
+
+// תרגום כותרות קטגוריות שתייה חריפה לאנגלית
+const SPIRITS_EN = {
+  'תדלוק פרמיום — שוטים':              'Premium Shots',
+  "צ'ייסרים — שתה וסע (עם נהג תורן)": 'Chasers',
+  'מיקס & דרינק — מנה + שתייה קלה':   'Mix & Drink',
+  'קוקטיילים מיוחדים':                 'Special Cocktails',
+  'בירות — עצירת דיינון':              'Beers',
+  'יינות — נכנסים להילוך גבוה':        'Wines',
+};
+
+// ─── ספיישל היום — הכרטיס הגדול בראש המסך ───────────────
+const SPECIAL_HERO = {
+  name:    'שוקו חם',
+  nameEn:  'Hot Cocoa',
+  desc:    'שוקולד חם עם נגיעת רום<br>המשקה החדש שכולם מדברים עליו 🔥',
+  descEn:  "Hot chocolate with a touch of rum<br>The new drink everyone's talking about 🔥",
+  punches: 1,
+};
+
+// ─── רשימת ספיישלס נוספים ────────────────────────────────
+const SPECIALS = [
+  { id: 'ssp1', name: "ג'ין פיזי",     nameEn: 'Gin Fizz',       desc: "ג'ין, לימון, מי סודה ורוזמרין",        punches: 5, isNew: true  },
+  { id: 'ssp2', name: 'מוחיטו ספיישל', nameEn: 'Special Mojito', desc: 'רום לבן, נענע טרייה, ליים וסוכר חום', punches: 5, isNew: false },
+  { id: 'ssp3', name: 'שוקו חם',       nameEn: 'Hot Cocoa',      desc: "שוקולד חם עם טאצ' של רום — חדש!",     punches: 1, isNew: true  },
+];
+
+// ─── אירועי החודש ────────────────────────────────────────
+const EVENTS = [
+  {
+    id: 'ev1', emoji: '🎸',
+    date: 'שישי, 14 מרץ 2026',    dateEn: 'Friday, March 14, 2026',
+    title: 'ערב מוזיקה חיה',      titleEn: 'Live Music Night',
+    desc: 'להקה מקומית מככבת הלילה! בואו תהנו ממוזיקה חיה, שתייה טובה וחברים עוד יותר טובים.',
+    descEn: 'Local band playing live tonight! Come enjoy great music, good drinks and even better friends.',
+    tag: '🎸 מוזיקה חיה', tagEn: '🎸 Live Music', isNew: false,
+  },
+  {
+    id: 'ev2', emoji: '🧠',
+    date: 'שבת, 22 מרץ 2026',     dateEn: 'Saturday, March 22, 2026',
+    title: 'ערב טריוויה',         titleEn: 'Trivia Night',
+    desc: 'קבצו צוות, חדדו את השכל ותתחרו על פרסים מיוחדים. הכניסה חופשית לבעלי כרטיסיה!',
+    descEn: 'Gather your team and compete for special prizes. Free entry for card holders!',
+    tag: '🧠 משחקים', tagEn: '🧠 Games', isNew: true,
+  },
+  {
+    id: 'ev3', emoji: '🥂',
+    date: 'שישי, 28 מרץ 2026',    dateEn: 'Friday, March 28, 2026',
+    title: 'Happy Hour מורחב',    titleEn: 'Extended Happy Hour',
+    desc: "Happy Hour כל הלילה! 20% הנחה על כל הכרטיסיות. הצעה לזמן מוגבל — אל תפספסו!",
+    descEn: "Happy Hour all night long! 20% off all cards. Limited time offer — please don't miss it!",
+    tag: '🥂במינ מבצע מיוחד', tagEn: '🥂 Special Offer', isNew: true,
+  },
+];
+
+// ─── אוכל ────────────────────────────────────────────────
+const FOOD = [
+  { id: 'fo0', name: 'בייגלה',  nameEn: 'Pretzels', desc: 'pretzels — על חשבון הבית',          punches: 0, isNew: false },
+  { id: 'fo1', name: 'זיתים',   nameEn: 'Olives',   desc: 'Olives — נשנוש מושלם עם כל שתייה', punches: 1, isNew: false },
+  { id: 'fo2', name: "נאצ'וס",  nameEn: 'Nachos',   desc: 'Nachos — קריספי, קריספי וקריספי',  punches: 2, isNew: false },
+];
+</script>
+
+<script>
+// ═══════════════════ STATE ═══════════════════
+
+const likes = JSON.parse(localStorage.getItem('btdr_likes') || '{}');
+const seen  = JSON.parse(localStorage.getItem('btdr_seen')  || '{}');
+let lang    = localStorage.getItem('btdr_lang') || 'he';
+// ═══════════════════ AMBIENT MUSIC ═══════════════════
+// Upbeat bar groove — starts on first user touch/click
+(function () {
+  let started = false;
+
+  function startMusic() {
+    if (started) return;
+    started = true;
+
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const master = ctx.createGain();
+    master.gain.value = 0.38;
+    master.connect(ctx.destination);
+
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -18; comp.ratio.value = 5;
+    comp.connect(master);
+
+    // Short reverb delay
+    const dly = ctx.createDelay(0.3);
+    const dfb = ctx.createGain(); dfb.gain.value = 0.15;
+    const dov = ctx.createGain(); dov.gain.value = 0.10;
+    dly.connect(dfb); dfb.connect(dly); dly.connect(dov); dov.connect(comp);
+
+    const BPM = 114, b = 60 / BPM, bar = b * 4;
+
+    function kick(t) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.setValueAtTime(200, t);
+      o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+      g.gain.setValueAtTime(1.0, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      o.connect(g); g.connect(comp); o.start(t); o.stop(t + 0.26);
+    }
+
+    function snare(t) {
+      const len = Math.ceil(ctx.sampleRate * 0.18);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(), g = ctx.createGain();
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2200; f.Q.value = 0.8;
+      g.gain.setValueAtTime(0.4, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+      src.buffer = buf; src.connect(f); f.connect(g); g.connect(comp); src.start(t); src.stop(t + 0.2);
+    }
+
+    function hat(t, v) {
+      const len = Math.ceil(ctx.sampleRate * 0.05);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(), g = ctx.createGain();
+      const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 9000;
+      g.gain.setValueAtTime(v * 0.16, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+      src.buffer = buf; src.connect(f); f.connect(g); g.connect(comp); src.start(t); src.stop(t + 0.06);
+    }
+
+    function bass(freq, t, dur) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 420;
+      o.type = 'sawtooth'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.44, t + 0.02);
+      g.gain.setValueAtTime(0.44, t + dur - 0.05);
+      g.gain.linearRampToValueAtTime(0, t + dur);
+      o.connect(f); f.connect(g); g.connect(comp); o.start(t); o.stop(t + dur + 0.05);
+    }
+
+    function stab(freqs, t, dur) {
+      freqs.forEach(fr => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'square'; o.frequency.value = fr;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.045, t + 0.01);
+        g.gain.setValueAtTime(0.045, t + dur * 0.5);
+        g.gain.linearRampToValueAtTime(0, t + dur);
+        o.connect(g); g.connect(dly); o.start(t); o.stop(t + dur + 0.05);
+      });
+    }
+
+    // Bass line in A minor (walking groove)
+    const bassLine = [
+      [55.00, 0,       b * 0.45],
+      [65.41, 0.5 * b, b * 0.45],
+      [73.42, 1   * b, b * 0.45],
+      [65.41, 1.5 * b, b * 0.45],
+      [55.00, 2   * b, b * 0.45],
+      [73.42, 2.5 * b, b * 0.45],
+      [82.41, 3   * b, b * 0.45],
+      [73.42, 3.5 * b, b * 0.45],
+    ];
+
+    // Chord stabs (Am → F → C → G) on off-beats
+    const chordProg = [
+      [[220, 261.63, 329.63], 0],
+      [[174.61, 220, 261.63], 1],
+      [[261.63, 329.63, 392], 2],
+      [[196, 246.94, 329.63], 3],
+    ];
+
+    function loopBar(t) {
+      // 4-on-the-floor kick + extra on 2.5
+      kick(t); kick(t + 2 * b); kick(t + 2.5 * b);
+      // Snare on 2 and 4
+      snare(t + b); snare(t + 3 * b);
+      // 8th-note hi-hats
+      for (let i = 0; i < 8; i++) hat(t + i * b * 0.5, i % 2 === 0 ? 1 : 0.6);
+      // Bass
+      bassLine.forEach(([fr, off, dur]) => bass(fr, t + off, dur));
+      // Off-beat chord stabs
+      chordProg.forEach(([freqs, bi]) => stab(freqs, t + bi * b + b * 0.5, b * 0.22));
+      setTimeout(() => loopBar(t + bar), (bar - 0.1) * 1000);
+    }
+
+    loopBar(ctx.currentTime + 0.1);
+  }
+
+  document.addEventListener('touchstart', startMusic, { once: true });
+  document.addEventListener('click',      startMusic, { once: true });
+})();
+
+// ═══════════════════ STRINGS ═══════════════════
+
+const STRINGS = {
+  he: {
+    navAbout:   'על הבר',      navTeam:    'הצוות שלנו',
+    navSoft:    'שתייה קלה',   navSpirits: 'שתייה חריפה',
+    navSpecial: 'ספיישל היום', navEvents:  'אירועי החודש', navFood: 'אוכל', navGallery: 'תמונות',
+    navPayment: 'רכישת כרטיסיה', navFeedback: 'פידבקים מהתושבים',
+    hdrAbout:   'על הבר',      hdrTeam:    'הצוות שלנו',
+    hdrSoft:    'שתייה קלה',   hdrSpirits: 'שתייה חריפה',
+    hdrSpecial: 'ספיישל היום', hdrEvents:  'אירועי החודש', hdrFood: 'אוכל', hdrGallery: 'תמונות',
+    hdrFeedback: 'פידבקים',
+    punchLabel: 'ניקובים',
+    newTag: '✦ חדש',
+    cardText1: 'כרטיסיה = 100 ש"ח | 20 ניקובים',
+    cardText2: 'ניקוב אחד = 5 ש"ח',
+    cardCta: '🎫 שאל את הברמן',
+    specialBadge: '✦ ספיישל היום ✦',
+    specialPrice: (p) => `${p * 5} ש"ח בלבד`,
+    moreSpecials: 'עוד ספיישלס השבוע',
+    foodSec: 'ליד האלכוהול',
+    foodNote: '🍺 <strong>ליד האלכוהול</strong> — חלקים למנוע שלך. כי כל מנוע טוב צריך שמן!',
+    aboutBody: `
+      <p class="about-text">ברוכים הבאים ל<strong>Bartender</strong> — הפאב הקהילתי שלנו.<br><br>
+      אנחנו לא סתם בר. אנחנו מקום שבו כולם מכירים את שמך, שבו כל ערב מרגיש כמו ביקור אצל חברים ישנים.
+      פה הצחוק גדול, השתייה טובה, והאנשים — עוד יותר טובים.<br><br>
+      <strong>הכרטיסיה שלנו</strong> היא הדרך שלנו לשמור את הדברים פשוטים: קונים כרטיסיה אחת וסיימנו עם עודף.
+      כל ניקוב = 5 ש"ח, כרטיסיה = 20 ניקובים = 100 ש"ח.<br><br>
+      כאן אתם לא רק לקוחות — אתם חלק ממשפחה. <strong>בואו, שבו, ותרגישו בבית.</strong></p>
+      <div class="highlights">
+        <div class="hl-card"><span class="hl-icon">🎫</span><div class="hl-title">כרטיסיה</div><div class="hl-desc">100 ש"ח<br>20 ניקובים</div></div>
+        <div class="hl-card"><span class="hl-icon">🤝</span><div class="hl-title">קהילתי</div><div class="hl-desc">פאב של כולם<br>ללא פורמליות</div></div>
+        <div class="hl-card"><span class="hl-icon">🎵</span><div class="hl-title">אווירה</div><div class="hl-desc">אירועים חיים<br>מוזיקה מגניבה</div></div>
+        <div class="hl-card"><span class="hl-icon">18+</span><div class="hl-title">אחריות</div><div class="hl-desc">שותים בזהירות<br>נוהגים בשפיות</div></div>
+      </div>`,
+  },
+  en: {
+    navAbout:   'About',         navTeam:    'Our Team',
+    navSoft:    'Soft Drinks',   navSpirits: 'Spirits',
+    navSpecial: 'Daily Special', navEvents:  'Events', navFood: 'Food', navGallery: 'Gallery',
+    navPayment: 'Buy a Card', navFeedback: 'Resident Feedback',
+    hdrAbout:   'About',         hdrTeam:    'Our Team',
+    hdrSoft:    'Soft Drinks',   hdrSpirits: 'Spirits',
+    hdrSpecial: 'Daily Special', hdrEvents:  'Events', hdrFood: 'Food', hdrGallery: 'Gallery',
+    hdrFeedback: 'Feedback',
+    punchLabel: 'punches',
+    newTag: '✦ New',
+    cardText1: 'Card = 100 NIS | 20 punches',
+    cardText2: '1 punch = 5 NIS',
+    cardCta: '🎫 Ask the Bartender',
+    specialBadge: '✦ DAILY SPECIAL ✦',
+    specialPrice: (p) => `Only ${p * 5}₪`,
+    moreSpecials: 'More Specials This Week',
+    foodSec: 'Bar Snacks',
+    foodNote: '🍺 <strong>Bar Snacks</strong> — fuel for your engine. Every good engine needs oil!',
+    aboutBody: `
+      <p class="about-text">Welcome to <strong>Bartender</strong> — our community pub.<br><br>
+      We're not just a bar. We're a place where everyone knows your name, where every evening feels like
+      catching up with old friends. Here the laughter is loud, the drinks are great,
+      and the people — even better.<br><br>
+      <strong>Our punch card</strong> keeps things simple: buy one card and forget about change.
+      1 punch = 5 NIS, card = 20 punches = 100 NIS.<br><br>
+      You're not just customers here — you're family. <strong>Come in, sit down, and feel at home.</strong></p>
+      <div class="highlights">
+        <div class="hl-card"><span class="hl-icon">🎫</span><div class="hl-title">Punch Card</div><div class="hl-desc">100 NIS<br>20 punches</div></div>
+        <div class="hl-card"><span class="hl-icon">🤝</span><div class="hl-title">Community</div><div class="hl-desc">Everyone's pub<br>No formality</div></div>
+        <div class="hl-card"><span class="hl-icon">🎵</span><div class="hl-title">Vibes</div><div class="hl-desc">Live events<br>Cool music</div></div>
+        <div class="hl-card"><span class="hl-icon">18+</span><div class="hl-title">Responsible</div><div class="hl-desc">Drink safely<br>Drive sober</div></div>
+      </div>`,
+  },
+};
+
+// ═══════════════════ LANGUAGE ═══════════════════
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('btdr_lang', l);
+  updateStaticText();
+  renderAll();
+}
+
+function updateStaticText() {
+  const s = STRINGS[lang];
+  const isRtl = lang === 'he';
+  document.documentElement.dir  = isRtl ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  document.getElementById('btn-he').classList.toggle('active', isRtl);
+  document.getElementById('btn-en').classList.toggle('active', !isRtl);
+
+  // Nav labels
+  document.getElementById('nl-about').textContent   = s.navAbout;
+  document.getElementById('nl-team').textContent    = s.navTeam;
+  document.getElementById('nl-soft').textContent    = s.navSoft;
+  document.getElementById('nl-spirits').textContent = s.navSpirits;
+  document.getElementById('nl-special').textContent = s.navSpecial;
+  document.getElementById('nl-events').textContent  = s.navEvents;
+  document.getElementById('nl-food').textContent    = s.navFood;
+  document.getElementById('nl-gallery').textContent   = s.navGallery;
+  document.getElementById('nl-payment').textContent  = s.navPayment;
+  document.getElementById('nl-feedback').textContent = s.navFeedback;
+
+  // Screen headers
+  document.getElementById('hdr-about').textContent   = s.hdrAbout;
+  document.getElementById('hdr-team').textContent    = s.hdrTeam;
+  document.getElementById('hdr-soft').textContent    = s.hdrSoft;
+  document.getElementById('hdr-spirits').textContent = s.hdrSpirits;
+  document.getElementById('hdr-special').textContent = s.hdrSpecial;
+  document.getElementById('hdr-events').textContent  = s.hdrEvents;
+  document.getElementById('hdr-food').textContent    = s.hdrFood;
+  document.getElementById('hdr-gallery').textContent  = s.hdrGallery;
+  document.getElementById('hdr-feedback').textContent = s.hdrFeedback;
+
+  // Card strip
+  document.getElementById('card-text1').textContent = s.cardText1;
+  document.getElementById('card-text2').textContent = s.cardText2;
+  document.getElementById('card-cta').textContent   = s.cardCta;
+
+  // Food note
+  document.getElementById('food-note').innerHTML = s.foodNote;
+
+  // About body
+  document.getElementById('about-body').innerHTML = s.aboutBody;
+}
+
+// ═══════════════════ HELPERS ═══════════════════
+
+function punchHTML(n) {
+  const nis = n * 5;
+  return `<div class="punch-display">
+    <div class="punch-num">${n}</div>
+    <div class="punch-sub">${STRINGS[lang].punchLabel}</div>
+    <div class="punch-nis">${nis}₪</div>
+  </div>`;
+}
+
+function likeHTML(id) {
+  const isLiked = !!likes[id];
+  const cnt = likes[id] || 0;
+  return `<button class="like-btn${isLiked ? ' liked' : ''}" onclick="toggleLike('${id}',this)">
+    <span class="like-heart">${isLiked ? '❤️' : '🤍'}</span>
+    <span class="like-count">${cnt > 0 ? cnt : ''}</span>
+  </button>`;
+}
+
+function n(item, field) {
+  // pick the correct language field, fallback to Hebrew
+  return lang === 'en' ? (item[field + 'En'] || item[field]) : item[field];
+}
+
+function itemHTML(item) {
+  return `<div class="item${item.isNew ? ' is-new' : ''}">
+    <div class="item-info">
+      <div class="item-name">${n(item, 'name')}</div>
+      ${n(item, 'desc') ? `<div class="item-desc">${n(item, 'desc')}</div>` : ''}
+      ${item.isNew ? `<span class="new-tag">${STRINGS[lang].newTag}</span>` : ''}
+    </div>
+    <div class="item-right">
+      ${punchHTML(item.punches)}
+      ${likeHTML(item.id)}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════ NAVIGATION ═══════════════════
+
+function go(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('exiting');
+  el.classList.add('active');
+  el.scrollTop = 0;
+
+  if (!seen[id]) {
+    seen[id] = true;
+    localStorage.setItem('btdr_seen', JSON.stringify(seen));
+    const dot = document.getElementById('badge-' + id + '-dot');
+    if (dot) dot.style.display = 'none';
+  }
+}
+
+function back() {
+  const active = document.querySelector('.screen.active:not(#home)');
+  if (!active) return;
+  active.classList.add('exiting');
+  setTimeout(() => {
+    active.classList.remove('active', 'exiting');
+  }, 430);
+}
+
+// ═══════════════════ LIKES ═══════════════════
+
+function toggleLike(id, btn) {
+  const cur = likes[id] || 0;
+  likes[id] = cur > 0 ? 0 : 1;
+  localStorage.setItem('btdr_likes', JSON.stringify(likes));
+
+  const heart = btn.querySelector('.like-heart');
+  const count = btn.querySelector('.like-count');
+  const isNowLiked = likes[id] > 0;
+
+  btn.classList.toggle('liked', isNowLiked);
+  heart.textContent = isNowLiked ? '❤️' : '🤍';
+  count.textContent = isNowLiked ? '1' : '';
+
+  if (isNowLiked) {
+    btn.style.transform = 'scale(1.25)';
+    setTimeout(() => btn.style.transform = '', 200);
+  }
+}
+
+// ═══════════════════ RENDER ═══════════════════
+
+function renderTeam() {
+  document.getElementById('team-grid').innerHTML =
+    TEAM.map(m => `<div class="team-card">
+      <div class="team-avatar">${m.emoji}</div>
+      <div class="team-name">${n(m, 'name')}</div>
+      <div class="team-role">${n(m, 'role')}</div>
+      <div class="team-bio">${n(m, 'bio')}</div>
+    </div>`).join('');
+}
+
+function renderSoft() {
+  document.getElementById('soft-content').innerHTML =
+    SOFT.map(itemHTML).join('');
+}
+
+function renderSpirits() {
+  let html = '';
+  for (const [sec, items] of Object.entries(SPIRITS)) {
+    const title = lang === 'en' ? (SPIRITS_EN[sec] || sec) : sec;
+    html += `<div class="sec-title">${title}</div>` + items.map(itemHTML).join('');
+  }
+  document.getElementById('spirits-content').innerHTML = html;
+}
+
+function renderSpecial() {
+  const s = STRINGS[lang];
+  const name = n(SPECIAL_HERO, 'name');
+  const desc = n(SPECIAL_HERO, 'desc');
+  const dots = Array.from({length: SPECIAL_HERO.punches}, () =>
+    `<div class="special-punch-dot"></div>`).join('');
+  document.getElementById('special-hero').innerHTML = `
+    <div class="special-badge-pill">${s.specialBadge}</div>
+    <div class="special-name">${name}</div>
+    <div class="special-desc">${desc}</div>
+    <div class="special-price-row">
+      ${dots}
+      <span class="special-price-txt">${s.specialPrice(SPECIAL_HERO.punches)}</span>
+    </div>`;
+  document.getElementById('special-content').innerHTML =
+    `<div class="sec-title">${s.moreSpecials}</div>` +
+    SPECIALS.map(itemHTML).join('');
+}
+
+function renderEvents() {
+  document.getElementById('events-content').innerHTML =
+    EVENTS.map(ev => `<div class="event-card">
+      <div class="event-img">${ev.emoji}</div>
+      <div class="event-body">
+        <div class="event-date">📅 ${n(ev, 'date')}</div>
+        <div class="event-title">${n(ev, 'title')}${ev.isNew ? ` <span class="new-tag">${STRINGS[lang].newTag}</span>` : ''}</div>
+        <div class="event-desc">${n(ev, 'desc')}</div>
+        <div class="event-footer">
+          <span class="event-tag">${n(ev, 'tag')}</span>
+          ${likeHTML(ev.id)}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderFood() {
+  document.getElementById('food-content').innerHTML =
+    `<div class="sec-title">${STRINGS[lang].foodSec}</div>` +
+    FOOD.map(itemHTML).join('');
+}
+
+// ═══════════════════ FEEDBACK ═══════════════════
+
+const FEEDBACKS = JSON.parse(localStorage.getItem('btdr_feedbacks') || '[]');
+
+function submitFeedback() {
+  const nameEl = document.getElementById('fb-name');
+  const textEl = document.getElementById('fb-text');
+  const name = nameEl.value.trim();
+  const text = textEl.value.trim();
+  if (!name || !text) {
+    const form = document.querySelector('.feedback-form');
+    form.style.transform = 'translateX(-8px)';
+    setTimeout(() => { form.style.transform = 'translateX(8px)'; }, 80);
+    setTimeout(() => { form.style.transform = ''; }, 160);
+    return;
+  }
+  FEEDBACKS.unshift({ name, text, ts: Date.now() });
+  localStorage.setItem('btdr_feedbacks', JSON.stringify(FEEDBACKS));
+  nameEl.value = ''; textEl.value = '';
+  renderFeedback();
+}
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  const hr  = Math.floor(diff / 3600000);
+  const day = Math.floor(diff / 86400000);
+  if (min < 1)  return 'הרגע';
+  if (min < 60) return `לפני ${min} דק׳`;
+  if (hr < 24)  return `לפני ${hr} שע׳`;
+  return `לפני ${day} ימים`;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderFeedback() {
+  const latestWrap = document.getElementById('feedback-latest-wrap');
+  const list = document.getElementById('feedback-list');
+  if (!latestWrap || !list) return;
+
+  if (FEEDBACKS.length === 0) {
+    latestWrap.innerHTML = '';
+    list.innerHTML = `<div class="feedback-empty">אין פידבקים עדיין — היו הראשונים! 🍺</div>`;
+    return;
+  }
+
+  const latest = FEEDBACKS[0];
+  latestWrap.innerHTML = `
+    <div class="feedback-latest">
+      <div class="feedback-latest-tag">✦ הפידבק האחרון</div>
+      <div class="feedback-latest-name">👤 ${escHtml(latest.name)}</div>
+      <div class="feedback-latest-text">"${escHtml(latest.text)}"</div>
+      <div class="feedback-latest-time">${timeAgo(latest.ts)}</div>
+    </div>`;
+
+  if (FEEDBACKS.length <= 1) {
+    list.innerHTML = `<div class="feedback-empty">רק פידבק אחד כרגע — הצטרפו!</div>`;
+    return;
+  }
+  list.innerHTML = FEEDBACKS.slice(1).map((fb, i) => `
+    <div class="feedback-item" style="animation-delay:${i * 0.04}s">
+      <div class="feedback-item-header">
+        <span class="feedback-item-name">👤 ${escHtml(fb.name)}</span>
+        <span class="feedback-item-time">${timeAgo(fb.ts)}</span>
+      </div>
+      <div class="feedback-item-text">"${escHtml(fb.text)}"</div>
+    </div>`).join('');
+}
+
+function renderAll() {
+  renderTeam();
+  renderSoft();
+  renderSpirits();
+  renderSpecial();
+  renderEvents();
+  renderFood();
+  renderFeedback();
+}
+
+function initBadges() {
+  const checks = {
+    special: [...SPECIALS].some(i => i.isNew),
+    events:  EVENTS.some(i => i.isNew),
+    spirits: Object.values(SPIRITS).flat().some(i => i.isNew),
+  };
+  for (const [key, hasNew] of Object.entries(checks)) {
+    if (hasNew && !seen[key]) {
+      const dot = document.getElementById('badge-' + key + '-dot');
+      if (dot) dot.style.display = '';
+    }
+  }
+}
+
+// ═══════════════════ INIT ═══════════════════
+updateStaticText();
+renderAll();
+initBadges();
+</script>
+</body>
+</html>
