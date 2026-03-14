@@ -1499,10 +1499,13 @@ function renderFood() {
 
 function loadFeedbacks() {
   db.ref('feedbacks').once('value').then(snap => {
-    FEEDBACKS = [];
-    snap.forEach(child => FEEDBACKS.push(child.val()));
-    FEEDBACKS.sort((a, b) => (b.ts || 0) - (a.ts || 0));
-    renderFeedback();
+    const newFbs = [];
+    snap.forEach(child => newFbs.push(child.val()));
+    newFbs.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    if (newFbs.length >= FEEDBACKS.length) {
+      FEEDBACKS = newFbs;
+      renderFeedback();
+    }
   });
 }
 
