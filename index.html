@@ -1085,7 +1085,7 @@ const SOFT = [
 
 // ─── שתייה חריפה ─────────────────────────────────────────
 const SPIRITS = {
-  'תדלוק פרמיום — שוטים': [
+  'תדלוק פרמיום': [
     { id: 'sp1', name: "ג'ין",              nameEn: 'Gin',               desc: 'Gin',                     punches: 3, isNew: false },
     { id: 'sp2', name: 'טקילה',             nameEn: 'Tequila',           desc: 'Tequila',                 punches: 3, isNew: false },
     { id: 'sp3', name: 'וודקה',             nameEn: 'Vodka',             desc: 'Vodka',                   punches: 3, isNew: false },
@@ -1500,7 +1500,10 @@ function renderFood() {
 function loadFeedbacks() {
   db.ref('feedbacks').once('value').then(snap => {
     const newFbs = [];
-    snap.forEach(child => newFbs.push(child.val()));
+    snap.forEach(child => {
+      const v = child.val();
+      if (v && v.name && v.text) newFbs.push(v);
+    });
     newFbs.sort((a, b) => (b.ts || 0) - (a.ts || 0));
     if (newFbs.length >= FEEDBACKS.length) {
       FEEDBACKS = newFbs;
