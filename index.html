@@ -508,25 +508,25 @@ t<!DOCTYPE html>
     .team-card {
       background: linear-gradient(135deg, var(--parchment) 0%, var(--parchment2) 100%);
       border-radius: 16px;
-      padding: 20px 14px 16px;
+      padding: 14px 10px 12px;
       text-align: center;
       animation: fadeUp 0.35s ease both;
     }
     .team-avatar {
-      width: 70px;
-      height: 70px;
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--copper), var(--gold));
       border: 3px solid var(--ink);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 30px;
-      margin: 0 auto 11px;
+      font-size: 25px;
+      margin: 0 auto 8px;
     }
-    .team-name { font-size: 15px; font-weight: 800; color: var(--ink); }
-    .team-role { font-size: 11px; color: var(--copper); font-weight: 700; letter-spacing: .4px; margin-top: 3px; }
-    .team-bio  { font-size: 11px; color: rgba(26,14,6,.52); margin-top: 7px; line-height: 1.5; }
+    .team-name { font-size: 13px; font-weight: 800; color: var(--ink); }
+    .team-role { font-size: 10px; color: var(--copper); font-weight: 700; letter-spacing: .4px; margin-top: 3px; }
+    .team-bio  { font-size: 10px; color: rgba(26,14,6,.52); margin-top: 5px; line-height: 1.5; }
     .team-card.wide {
       grid-column: 1 / -1;
       background: linear-gradient(135deg, var(--gold) 0%, var(--copper) 100%);
@@ -534,12 +534,18 @@ t<!DOCTYPE html>
       align-items: center;
       gap: 16px;
       text-align: right;
-      padding: 18px 20px;
+      padding: 16px 20px;
     }
     .team-card.wide .team-avatar { margin: 0; flex-shrink: 0; font-size: 34px; }
-    .team-card.wide .team-name { font-size: 16px; color: var(--ink); }
+    .team-card.wide .team-name { font-size: 15px; color: var(--ink); }
     .team-card.wide .team-role { color: var(--ink); opacity: 0.7; }
     .team-card.wide .team-bio  { color: var(--ink); opacity: 0.65; }
+    .team-card.wide.light {
+      background: linear-gradient(135deg, var(--parchment) 0%, var(--parchment2) 100%);
+    }
+    .team-card.wide.light .team-name { color: var(--ink); }
+    .team-card.wide.light .team-role { color: var(--copper); opacity: 1; }
+    .team-card.wide.light .team-bio  { color: rgba(26,14,6,.52); opacity: 1; }
 
     /* ─── EVENTS ────────────────────────────────────────── */
     .event-card {
@@ -1070,7 +1076,7 @@ const TEAM = [
   { emoji: '🎵',  name: 'אירית',   nameEn: 'Irit',    role: 'מובילה דעת קהל / DJ', roleEn: 'DJ & Bartender',     bio: 'מוזיקה + אלכוהול = ערב מושלם',            bioEn: 'Music + alcohol = perfect night' },
   { emoji: '🌟',  name: 'רויטל',   nameEn: 'Revital', role: 'אומנית הפרסום',       roleEn: 'Marketing Artist',   bio: 'דיגיטל זה שמה השני',                      bioEn: 'Digital is her middle name' },
   { emoji: '🍺',  name: 'הברמנים המתנדבים', nameEn: 'Our Volunteer Bartenders', role: 'גיבורי הבר האמיתיים', roleEn: 'The Real Heroes of the Bar', bio: 'משקיעים מזמנם שבוע אחר שבוע — ובלעדיהם הקסם הזה לא היה קורה', bioEn: 'Week after week they show up — and without them, none of this magic would happen', wide: true },
-  { emoji: '🙋🏼‍♂️', name: 'עידן',  nameEn: 'Idan',   role: '💰בזבזן ראשי',    roleEn: 'The ultimate spender💰',   bio: 'שר האוצר של הפאב🍻',  bioEn: "The Bar's Finance Minister🍻" },
+  { emoji: '🙋🏼‍♂️', name: 'עידן',  nameEn: 'Idan',   role: '💰בזבזן ראשי',    roleEn: 'The ultimate spender💰',   bio: 'שר האוצר של הפאב🍻',  bioEn: "The Bar's Finance Minister🍻", wide: true, light: true },
 
 ];
 
@@ -1434,7 +1440,7 @@ function toggleLike(id, btn) {
 
 function renderTeam() {
   document.getElementById('team-grid').innerHTML =
-    TEAM.map(m => `<div class="team-card${m.wide ? ' wide' : ''}">
+    TEAM.map(m => `<div class="team-card${m.wide ? ' wide' : ''}${m.light ? ' light' : ''}">
       <div class="team-avatar">${m.emoji}</div>
       <div>
         <div class="team-name">${n(m, 'name')}</div>
