@@ -1117,8 +1117,8 @@ const SPIRITS = {
   ],
   'בירות — עצירת דיינון': [
     { id: 'be1', name: 'בקבוק בירה', nameEn: 'Beer Bottle', desc: 'Beer Bottle',        punches: 2, isNew: false },
-    { id: 'be2', name: 'מלכה 1/3',   nameEn: 'Malca 1/3',  desc: 'Malca Bottle — 1/3', punches: 2, isNew: false },
-    { id: 'be3', name: 'מלכה 1/2',   nameEn: 'Malca 1/2',  desc: 'Malca Bottle — 1/2', punches: 3, isNew: false },
+    { id: 'be2', name: 'מלכה 1/3',   nameEn: 'Malca 1/3',  desc: 'Malca — 1/3', punches: 2, isNew: false },
+    { id: 'be3', name: 'מלכה 1/2',   nameEn: 'Malca 1/2',  desc: 'Malca — 1/2', punches: 3, isNew: false },
   ],
   'יינות — נכנסים להילוך גבוה': [
     { id: 'wi1', name: 'כוס יין',   nameEn: 'Wine Glass',  desc: 'אדום / לבן / רוזה', punches: 4,  isNew: false },
@@ -1140,16 +1140,16 @@ const SPIRITS_EN = {
 const SPECIAL_HERO = {
   name:    'שוקו חם',
   nameEn:  'Hot Cocoa',
-  desc:    'שוקולד חם עם נגיעת רום<br>המשקה החדש שכולם מדברים עליו 🔥',
-  descEn:  "Hot chocolate with a touch of rum<br>The new drink everyone's talking about 🔥",
+  desc:    'שוקולד חם<br>המשקה החדש שכולם מדברים עליו 🔥',
+  descEn:  "Hot chocolate<br>The new drink everyone's talking about 🔥",
   punches: 1,
 };
 
 // ─── רשימת ספיישלס נוספים ────────────────────────────────
 const SPECIALS = [
   { id: 'ssp1', name: "ג'ין פיזי",     nameEn: 'Gin Fizz',       desc: "ג'ין, לימון, מי סודה ורוזמרין",        punches: 5, isNew: true  },
-  { id: 'ssp2', name: 'מוחיטו ספיישל', nameEn: 'Special Mojito', desc: 'רום לבן, נענע טרייה, ליים וסוכר חום', punches: 5, isNew: false },
-  { id: 'ssp3', name: 'שוקו חם',       nameEn: 'Hot Cocoa',      desc: "שוקולד חם עם טאצ' של רום — חדש!",     punches: 1, isNew: true  },
+  { id: 'ssp2', name: 'מוחיטו ספיישל', nameEn: 'Special Mojito', desc: 'רום לבן, נענע טרייה, ליים וסוכר חום', punches: 5, isNew: Hidden:true },
+  { id: 'ssp3', name: 'שוקו חם',       nameEn: 'Hot Cocoa',      desc: "שוקולד חם — חדש!",     punches: 1, isNew: Hidden:true  },
 ];
 
 // ─── אירועי החודש ────────────────────────────────────────
@@ -1362,6 +1362,7 @@ function n(item, field) {
 }
 
 function itemHTML(item) {
+  if (item.hidden) return '';
   return `<div class="item${item.isNew ? ' is-new' : ''}">
     <div class="item-info">
       <div class="item-name">${n(item, 'name')}</div>
@@ -1475,18 +1476,7 @@ function renderSpecial() {
 
 function renderEvents() {
   document.getElementById('events-content').innerHTML =
-    EVENTS.map(ev => `<div class="event-card">
-      <div class="event-img">${ev.emoji}</div>
-      <div class="event-body">
-        <div class="event-date">📅 ${n(ev, 'date')}</div>
-        <div class="event-title">${n(ev, 'title')}${ev.isNew ? ` <span class="new-tag">${STRINGS[lang].newTag}</span>` : ''}</div>
-        <div class="event-desc">${n(ev, 'desc')}</div>
-        <div class="event-footer">
-          <span class="event-tag">${n(ev, 'tag')}</span>
-          ${likeHTML(ev.id)}
-        </div>
-      </div>
-    </div>`).join('');
+    `<div class="feedback-empty" style="padding:40px 20px;font-size:15px;color:var(--text);">🎉 כאן נפרסם את האירועים המיוחדים שלנו — שווה לעקוב!</div>`;
 }
 
 function renderFood() {
