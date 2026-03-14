@@ -1383,6 +1383,8 @@ function go(id) {
   el.classList.add('active');
   el.scrollTop = 0;
 
+  if (id === 'feedback') renderFeedback();
+
   if (!seen[id]) {
     seen[id] = true;
     localStorage.setItem('btdr_seen', JSON.stringify(seen));
