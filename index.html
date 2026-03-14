@@ -1070,6 +1070,8 @@ const TEAM = [
   { emoji: '🎵',  name: 'אירית',   nameEn: 'Irit',    role: 'מובילה דעת קהל / DJ', roleEn: 'DJ & Bartender',     bio: 'מוזיקה + אלכוהול = ערב מושלם',            bioEn: 'Music + alcohol = perfect night' },
   { emoji: '🌟',  name: 'רויטל',   nameEn: 'Revital', role: 'אומנית הפרסום',       roleEn: 'Marketing Artist',   bio: 'דיגיטל זה שמה השני',                      bioEn: 'Digital is her middle name' },
   { emoji: '🍺',  name: 'הברמנים המתנדבים', nameEn: 'Our Volunteer Bartenders', role: 'גיבורי הבר האמיתיים', roleEn: 'The Real Heroes of the Bar', bio: 'משקיעים מזמנם שבוע אחר שבוע — ובלעדיהם הקסם הזה לא היה קורה', bioEn: 'Week after week they show up — and without them, none of this magic would happen', wide: true },
+{ emoji: '🙋🏼‍♂️', name: 'עידן',  nameEn: 'Idan',   role: '💰בזבזן ראשי',    roleEn: 'The ultimate spender💰',   bio: 'שר האוצר של הפאב🍻 ',  bioEn: 'The Bar's Finance Minister🍻' },
+
 ];
 
 // ─── שתייה קלה ───────────────────────────────────────────
@@ -1117,12 +1119,13 @@ const SPIRITS = {
   ],
   'בירות — עצירת דיינון': [
     { id: 'be1', name: 'בקבוק בירה', nameEn: 'Beer Bottle', desc: 'Beer Bottle',        punches: 2, isNew: false },
-    { id: 'be2', name: 'מלכה 1/3',   nameEn: 'Malca 1/3',  desc: 'Malca — 1/3', punches: 2, isNew: false },
-    { id: 'be3', name: 'מלכה 1/2',   nameEn: 'Malca 1/2',  desc: 'Malca — 1/2', punches: 3, isNew: false },
+    { id: 'be2', name: 'מלכה/וודט 1/3',   nameEn: 'Malca 1/3',  desc: 'Malca/Vedett — 1/3', punches: 2, isNew: false },
+    { id: 'be3', name: 'מלכה/וודט 1/2',   nameEn: 'Malca 1/2',  desc: 'Malca/Vedett — 1/2', punches: 3, isNew: false },
   ],
   'יינות — נכנסים להילוך גבוה': [
     { id: 'wi1', name: 'כוס יין',   nameEn: 'Wine Glass',  desc: 'אדום / לבן / רוזה', punches: 4,  isNew: false },
-    { id: 'wi2', name: 'בקבוק יין', nameEn: 'Wine Bottle', desc: 'אדום / לבן / רוזה', punches: 12, isNew: false },
+    { id: 'wi2', name: 'בקבוק יין', nameEn: 'Wine Bottle', desc: 'אדום / רוזה', punches: 12, isNew: false },
+    { id: 'wi2', name: 'בקבוק יין לבן חדש', nameEn: 'Wine Bottle', desc: 'לבן', punches: 14, isNew: false },
   ],
 };
 
@@ -1147,7 +1150,7 @@ const SPECIAL_HERO = {
 
 // ─── רשימת ספיישלס נוספים ────────────────────────────────
 const SPECIALS = [
-  { id: 'ssp1', name: "ג'ין פיזי",     nameEn: 'Gin Fizz',       desc: "ג'ין, לימון, מי סודה ורוזמרין",        punches: 5, isNew: true  },
+  { id: 'ssp1', name: "יין לבן",     nameEn: 'Gin Fizz',       desc: "סוביניון בלאן פרייבט בין (וילה מריה) ",        punches: 4, isNew: true  },
   { id: 'ssp2', name: 'מוחיטו ספיישל', nameEn: 'Special Mojito', desc: 'רום לבן, נענע טרייה, ליים וסוכר חום', punches: 5, isNew: false, hidden: true },
   { id: 'ssp3', name: 'שוקו חם',       nameEn: 'Hot Cocoa',      desc: "שוקולד חם — חדש!",     punches: 1, isNew: false, hidden: true },
 ];
