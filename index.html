@@ -1618,9 +1618,10 @@ function renderFood() {
 // ═══════════════════ FEEDBACK ═══════════════════
 
 // האזן לפידבקים מ-Firebase — עדכון בזמן אמת לכולם
-db.ref('feedbacks').orderByChild('ts').on('value', snap => {
+db.ref('feedbacks').on('value', snap => {
   FEEDBACKS = [];
-  snap.forEach(child => FEEDBACKS.unshift(child.val()));
+  snap.forEach(child => FEEDBACKS.push(child.val()));
+  FEEDBACKS.sort((a, b) => (b.ts || 0) - (a.ts || 0));
   renderFeedback();
 });
 
