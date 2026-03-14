@@ -1525,7 +1525,10 @@ function submitFeedback() {
     setTimeout(() => { form.style.transform = ''; }, 160);
     return;
   }
-  db.ref('feedbacks').push({ name, text, ts: Date.now() }).then(() => loadFeedbacks());
+  const newFb = { name, text, ts: Date.now() };
+  db.ref('feedbacks').push(newFb);
+  FEEDBACKS.unshift(newFb);
+  renderFeedback();
   nameEl.value = ''; textEl.value = '';
 }
 
