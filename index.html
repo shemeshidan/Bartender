@@ -1383,7 +1383,7 @@ function go(id) {
   el.classList.add('active');
   el.scrollTop = 0;
 
-  if (id === 'feedback') renderFeedback();
+  if (id === 'feedback') loadFeedbacks();
 
   if (!seen[id]) {
     seen[id] = true;
@@ -1497,25 +1497,20 @@ function renderFood() {
 
 // ═══════════════════ FEEDBACK ═══════════════════
 
-// האזן לפידבקים מ-Firebase — עדכון בזמן אמת לכולם
-db.ref('feedbacks').on('value', snap => {
-  FEEDBACKS = [];
-  snap.forEach(child => FEEDBACKS.push(child.val()));
-  FEEDBACKS.sort((a, b) => (b.ts || 0) - (a.ts || 0));
-  renderFeedback();
-});
+function loadFeedbacks() {
+  db.ref('feedbacks').once('value').then(snap => {
+    FEEDBACKS = [];
+    snap.forEach(child => FEEDBACKS.push(child.val()));
+    FEEDBACKS.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    renderFeedback();
+  });
+}
 
-// האזן לספירת לבבות מ-Firebase — עדכון בזמן אמת לכולם
-db.ref('likes').on('value', snap => {
+// טעינת לבבות מ-Firebase
+db.ref('likes').once('value').then(snap => {
   const data = snap.val() || {};
   Object.keys(data).forEach(k => { likeCounts[k] = data[k]; });
-  document.querySelectorAll('.like-btn').forEach(btn => {
-    const m = (btn.getAttribute('onclick') || '').match(/toggleLike\('([^']+)'/);
-    if (!m) return;
-    const id = m[1];
-    const cnt = likeCounts[id] || 0;
-    btn.querySelector('.like-count').textContent = cnt > 0 ? cnt : '';
-  });
+  renderAll();
 });
 
 function submitFeedback() {
@@ -1530,7 +1525,7 @@ function submitFeedback() {
     setTimeout(() => { form.style.transform = ''; }, 160);
     return;
   }
-  db.ref('feedbacks').push({ name, text, ts: Date.now() });
+  db.ref('feedbacks').push({ name, text, ts: Date.now() }).then(() => loadFeedbacks());
   nameEl.value = ''; textEl.value = '';
 }
 
@@ -1611,6 +1606,7 @@ function initBadges() {
 updateStaticText();
 renderAll();
 initBadges();
+loadFeedbacks();
 </script>
 </body>
 </html>
