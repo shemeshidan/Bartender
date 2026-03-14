@@ -1174,10 +1174,27 @@ const FOOD = [
 ];
 </script>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyB-nUFuOifn3lEOxidWQWAQ-YP8Cgzgvjo",
+  authDomain: "bartender-efe04.firebaseapp.com",
+  databaseURL: "https://bartender-efe04-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "bartender-efe04",
+  storageBucket: "bartender-efe04.firebasestorage.app",
+  messagingSenderId: "519302139819",
+  appId: "1:519302139819:web:6492d96200228afa30ccee"
+});
+const db = firebase.database();
+</script>
+
 <script>
 // ═══════════════════ STATE ═══════════════════
 
-const likes = JSON.parse(localStorage.getItem('btdr_likes') || '{}');
+const myLikes    = JSON.parse(localStorage.getItem('btdr_likes') || '{}');
+const likeCounts = {};
+let   FEEDBACKS  = [];
 const seen  = JSON.parse(localStorage.getItem('btdr_seen')  || '{}');
 let lang    = localStorage.getItem('btdr_lang') || 'he';
 // ═══════════════════ AMBIENT MUSIC ═══════════════════
@@ -1439,8 +1456,8 @@ function punchHTML(n) {
 }
 
 function likeHTML(id) {
-  const isLiked = !!likes[id];
-  const cnt = likes[id] || 0;
+  const isLiked = !!myLikes[id];
+  const cnt = likeCounts[id] || 0;
   return `<button class="like-btn${isLiked ? ' liked' : ''}" onclick="toggleLike('${id}',this)">
     <span class="like-heart">${isLiked ? '❤️' : '🤍'}</span>
     <span class="like-count">${cnt > 0 ? cnt : ''}</span>
@@ -1494,19 +1511,22 @@ function back() {
 // ═══════════════════ LIKES ═══════════════════
 
 function toggleLike(id, btn) {
-  const cur = likes[id] || 0;
-  likes[id] = cur > 0 ? 0 : 1;
-  localStorage.setItem('btdr_likes', JSON.stringify(likes));
+  const isLiked = !!myLikes[id];
+  const newLiked = !isLiked;
+  myLikes[id] = newLiked;
+  localStorage.setItem('btdr_likes', JSON.stringify(myLikes));
 
   const heart = btn.querySelector('.like-heart');
   const count = btn.querySelector('.like-count');
-  const isNowLiked = likes[id] > 0;
+  btn.classList.toggle('liked', newLiked);
+  heart.textContent = newLiked ? '❤️' : '🤍';
 
-  btn.classList.toggle('liked', isNowLiked);
-  heart.textContent = isNowLiked ? '❤️' : '🤍';
-  count.textContent = isNowLiked ? '1' : '';
+  const delta = newLiked ? 1 : -1;
+  db.ref('likes/' + id).transaction(cur => (cur || 0) + delta);
+  likeCounts[id] = (likeCounts[id] || 0) + delta;
+  count.textContent = likeCounts[id] > 0 ? likeCounts[id] : '';
 
-  if (isNowLiked) {
+  if (newLiked) {
     btn.style.transform = 'scale(1.25)';
     setTimeout(() => btn.style.transform = '', 200);
   }
@@ -1581,7 +1601,25 @@ function renderFood() {
 
 // ═══════════════════ FEEDBACK ═══════════════════
 
-const FEEDBACKS = JSON.parse(localStorage.getItem('btdr_feedbacks') || '[]');
+// האזן לפידבקים מ-Firebase — עדכון בזמן אמת לכולם
+db.ref('feedbacks').orderByChild('ts').on('value', snap => {
+  FEEDBACKS = [];
+  snap.forEach(child => FEEDBACKS.unshift(child.val()));
+  renderFeedback();
+});
+
+// האזן לספירת לבבות מ-Firebase — עדכון בזמן אמת לכולם
+db.ref('likes').on('value', snap => {
+  const data = snap.val() || {};
+  Object.keys(data).forEach(k => { likeCounts[k] = data[k]; });
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    const m = (btn.getAttribute('onclick') || '').match(/toggleLike\('([^']+)'/);
+    if (!m) return;
+    const id = m[1];
+    const cnt = likeCounts[id] || 0;
+    btn.querySelector('.like-count').textContent = cnt > 0 ? cnt : '';
+  });
+});
 
 function submitFeedback() {
   const nameEl = document.getElementById('fb-name');
@@ -1595,10 +1633,8 @@ function submitFeedback() {
     setTimeout(() => { form.style.transform = ''; }, 160);
     return;
   }
-  FEEDBACKS.unshift({ name, text, ts: Date.now() });
-  localStorage.setItem('btdr_feedbacks', JSON.stringify(FEEDBACKS));
+  db.ref('feedbacks').push({ name, text, ts: Date.now() });
   nameEl.value = ''; textEl.value = '';
-  renderFeedback();
 }
 
 function timeAgo(ts) {
