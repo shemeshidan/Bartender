@@ -961,6 +961,36 @@ t<!DOCTYPE html>
       cursor: pointer; transition: transform .15s, background .15s; margin-top: 4px;
     }
     .admin-save-btn:active { transform: scale(.96); background: var(--gold2); }
+    .admin-tabs {
+      display: flex; border-bottom: 1px solid rgba(200,148,26,.15);
+    }
+    .admin-tab {
+      flex: 1; background: none; border: none; border-bottom: 2px solid transparent;
+      padding: 10px 4px; font-family: 'Heebo', sans-serif; font-size: 11px;
+      color: rgba(238,224,188,.4); cursor: pointer; line-height: 1.5;
+      transition: color .2s, border-color .2s;
+    }
+    .admin-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .admin-punches-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .admin-punches-inp {
+      width: 80px; background: rgba(255,255,255,.05);
+      border: 1.5px solid rgba(200,148,26,.2); border-radius: 10px;
+      padding: 10px 12px; font-family: 'Heebo', sans-serif;
+      font-size: 16px; color: var(--text); outline: none; text-align: center;
+    }
+    .admin-punches-inp:focus { border-color: rgba(200,148,26,.65); }
+    .admin-cat-select {
+      width: 100%; background: rgba(255,255,255,.05);
+      border: 1.5px solid rgba(200,148,26,.2); border-radius: 10px;
+      padding: 10px 12px; font-family: 'Heebo', sans-serif;
+      font-size: 14px; color: var(--text); outline: none;
+      direction: rtl; box-sizing: border-box;
+    }
+    .admin-cat-select:focus { border-color: rgba(200,148,26,.65); }
+    .admin-cat-title {
+      padding: 8px 12px 3px; font-size: 10.5px; font-weight: 700;
+      color: rgba(238,224,188,.3); letter-spacing: 1px;
+    }
   </style>
 </head>
 <body>
@@ -1192,15 +1222,64 @@ t<!DOCTYPE html>
   <div id="admin" class="screen">
     <div class="screen-hdr">
       <div class="back-btn" onclick="back()">‹</div>
-      <div class="hdr-title">ניהול אירועים</div>
-      <span class="hdr-icon">🎉</span>
+      <div class="hdr-title">ניהול תפריט</div>
+      <span class="hdr-icon">⚙️</span>
     </div>
-    <div class="content" style="padding-top:6px;">
-      <div class="admin-panel-header">
-        <div class="admin-sec-title">אירועי החודש</div>
-        <button class="admin-add-btn" onclick="openEventForm(null)">+ הוסף אירוע</button>
+    <div style="display:flex;flex-direction:column;height:calc(100svh - 60px);">
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchAdminTab('events')"  id="tab-events">🎉<br>אירועים</button>
+        <button class="admin-tab"        onclick="switchAdminTab('spirits')" id="tab-spirits">🥃<br>חריפה</button>
+        <button class="admin-tab"        onclick="switchAdminTab('soft')"    id="tab-soft">🥤<br>קלה</button>
+        <button class="admin-tab"        onclick="switchAdminTab('food')"    id="tab-food">🍽️<br>אוכל</button>
       </div>
-      <div id="admin-events-list"></div>
+      <div id="admin-tab-content" style="flex:1;overflow-y:auto;padding-top:4px;"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ ADMIN ITEM FORM ══════════════════ -->
+  <div id="admin-item-form" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="aif-hdr">פריט חדש</div>
+      <span class="hdr-icon">✏️</span>
+    </div>
+    <div class="admin-form-wrap">
+      <div class="admin-field-grp">
+        <div class="admin-grp-lbl">עברית</div>
+        <label class="admin-lbl">שם *</label>
+        <input class="admin-inp admin-mb" id="aif-name" type="text" placeholder="שם הפריט">
+        <label class="admin-lbl">תיאור</label>
+        <input class="admin-inp admin-mb" id="aif-desc" type="text" placeholder="תיאור קצר">
+        <div id="aif-cat-wrap" style="display:none;">
+          <label class="admin-lbl">קטגוריה</label>
+          <select class="admin-cat-select admin-mb" id="aif-cat"></select>
+        </div>
+        <label class="admin-lbl">ניקובים</label>
+        <div class="admin-punches-row">
+          <input type="number" class="admin-punches-inp" id="aif-punches" min="0" max="30" value="1">
+          <span style="font-size:12px;color:rgba(238,224,188,.45);">ניקובים לפריט</span>
+        </div>
+      </div>
+      <div class="admin-field-grp">
+        <div class="admin-grp-lbl">English (optional)</div>
+        <label class="admin-lbl">Name</label>
+        <input class="admin-inp admin-mb" id="aif-name-en" type="text" placeholder="Item name" style="direction:ltr;">
+        <div id="aif-cat-en-wrap" style="display:none;">
+          <label class="admin-lbl">Category (EN)</label>
+          <input class="admin-inp" id="aif-cat-en" type="text" placeholder="e.g. Premium Shots" style="direction:ltr;">
+        </div>
+      </div>
+      <div class="admin-field-grp">
+        <div class="admin-toggle-row" style="margin-bottom:12px;">
+          <span class="admin-toggle-lbl">חדש ✦ (badge)</span>
+          <input type="checkbox" class="admin-toggle" id="aif-isnew">
+        </div>
+        <div class="admin-toggle-row">
+          <span class="admin-toggle-lbl">מוסתר (לא מוצג)</span>
+          <input type="checkbox" class="admin-toggle" id="aif-hidden">
+        </div>
+      </div>
+      <button class="admin-save-btn" onclick="saveItemForm()">💾 שמור</button>
     </div>
   </div>
 
@@ -1541,17 +1620,38 @@ function renderTeam() {
 }
 
 function renderSoft() {
-  document.getElementById('soft-content').innerHTML =
-    SOFT.map(itemHTML).join('');
+  const el = document.getElementById('soft-content');
+  if (!el) return;
+  const items = softData.length ? softData : SOFT.filter(i => !i.hidden);
+  el.innerHTML = items.map(itemHTML).join('');
 }
 
 function renderSpirits() {
+  const el = document.getElementById('spirits-content');
+  if (!el) return;
   let html = '';
-  for (const [sec, items] of Object.entries(SPIRITS)) {
-    const title = lang === 'en' ? (SPIRITS_EN[sec] || sec) : sec;
-    html += `<div class="sec-title">${title}</div>` + items.map(itemHTML).join('');
+  // Use Firebase data if loaded, else fall back to data.js
+  const source = Object.keys(spiritsGrouped).length ? spiritsGrouped : null;
+  if (source) {
+    for (const cat of SPIRIT_CAT_LIST) {
+      const items = source[cat];
+      if (!items || !items.length) continue;
+      const title = lang === 'en' ? (SPIRITS_EN[cat] || cat) : cat;
+      html += `<div class="sec-title">${title}</div>` + items.map(itemHTML).join('');
+    }
+    for (const cat of Object.keys(source)) {
+      if (SPIRIT_CAT_LIST.includes(cat)) continue;
+      const items = source[cat];
+      const title = lang === 'en' ? (items[0]?.catEn || cat) : cat;
+      html += `<div class="sec-title">${title}</div>` + items.map(itemHTML).join('');
+    }
+  } else {
+    for (const [sec, items] of Object.entries(SPIRITS)) {
+      const title = lang === 'en' ? (SPIRITS_EN[sec] || sec) : sec;
+      html += `<div class="sec-title">${title}</div>` + items.filter(i => !i.hidden).map(itemHTML).join('');
+    }
   }
-  document.getElementById('spirits-content').innerHTML = html;
+  el.innerHTML = html;
 }
 
 function renderSpecial() {
@@ -1612,7 +1712,7 @@ function initEvents() {
     fbEventsRaw = raw;
     eventsData = Object.values(raw).filter(v => v && !v.hidden);
     renderEvents();
-    renderAdminEvents();
+    if (adminTab === 'events') renderAdminTabContent();
     // badge
     const lastSeen = parseInt(localStorage.getItem('btdr_ev_seen_ts') || '0');
     const hasnew = eventsData.some(ev => ev.isNew || (ev.ts && ev.ts > lastSeen));
@@ -1622,9 +1722,10 @@ function initEvents() {
 }
 
 function renderFood() {
-  document.getElementById('food-content').innerHTML =
-    `<div class="sec-title">${STRINGS[lang].foodSec}</div>` +
-    FOOD.map(itemHTML).join('');
+  const el = document.getElementById('food-content');
+  if (!el) return;
+  const items = foodData.length ? foodData : FOOD.filter(i => !i.hidden);
+  el.innerHTML = `<div class="sec-title">${STRINGS[lang].foodSec}</div>` + items.map(itemHTML).join('');
 }
 
 // ═══════════════════ FEEDBACK ═══════════════════
@@ -1774,22 +1875,56 @@ function checkAdminPass() {
   if (val === ADMIN_PASS) {
     document.getElementById('admin-err').textContent = '';
     back();
-    setTimeout(() => { go('admin'); renderAdminEvents(); }, 50);
+    setTimeout(() => { go('admin'); switchAdminTab('events'); }, 50);
   } else {
     document.getElementById('admin-err').textContent = 'סיסמה שגויה ✗';
     document.getElementById('admin-pass-input').value = '';
   }
 }
 
-function renderAdminEvents() {
-  const list = document.getElementById('admin-events-list');
-  if (!list) return;
+// ── Admin tab state ──
+let adminTab = 'events';
+let softRaw = {}, foodRaw = {}, spiritsRaw = {};
+let softData = [], foodData = [], spiritsGrouped = {};
+const SPIRIT_CAT_LIST = typeof SPIRITS !== 'undefined' ? Object.keys(SPIRITS) : [];
+let adminItemType = null, adminItemKey = null;
+
+function switchAdminTab(tab) {
+  adminTab = tab;
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  const btn = document.getElementById('tab-' + tab);
+  if (btn) btn.classList.add('active');
+  renderAdminTabContent();
+}
+
+function renderAdminTabContent() {
+  const el = document.getElementById('admin-tab-content');
+  if (!el) return;
+  if (adminTab === 'events')  { renderAdminTabEvents();  return; }
+  if (adminTab === 'soft')    { renderAdminTabItems('soft',    softRaw,    '+ הוסף שתייה קלה'); return; }
+  if (adminTab === 'food')    { renderAdminTabItems('food',    foodRaw,    '+ הוסף מנה'); return; }
+  if (adminTab === 'spirits') { renderAdminTabSpirits(); return; }
+}
+
+function _adminItemCards(entries, type) {
+  return entries.map(([key, item]) => `
+    <div class="admin-ev-card" style="${item.hidden ? 'opacity:.42' : ''}">
+      <div class="admin-ev-info" style="flex:1;">
+        <div class="admin-ev-title">${escHtml(item.name || '')}${item.isNew ? ' <span style="color:var(--gold);font-size:10px;">✦</span>' : ''}${item.hidden ? ' <span style="color:#888;font-size:10px;">מוסתר</span>' : ''}</div>
+        <div class="admin-ev-date" style="color:var(--gold2);">🎫 ${item.punches ?? 0} ניקובים</div>
+        <div class="admin-ev-desc">${escHtml(item.desc || '')}</div>
+      </div>
+      <div class="admin-ev-btns">
+        <button class="admin-act-btn admin-act-edit" onclick="openItemForm('${type}','${key}')">עריכה</button>
+        <button class="admin-act-btn admin-act-del"  onclick="deleteMenuItem('${type}','${key}')">מחק</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderAdminTabEvents() {
+  const el = document.getElementById('admin-tab-content');
   const entries = Object.entries(fbEventsRaw).filter(([,v]) => v);
-  if (!entries.length) {
-    list.innerHTML = '<div class="admin-empty">אין אירועים עדיין.<br>לחץ "+ הוסף אירוע" ליצירה</div>';
-    return;
-  }
-  list.innerHTML = entries.map(([key, ev]) => `
+  const cards = entries.length ? entries.map(([key, ev]) => `
     <div class="admin-ev-card" style="${ev.hidden ? 'opacity:.42' : ''}">
       <div class="admin-ev-emoji">${escHtml(ev.emoji || '🎉')}</div>
       <div class="admin-ev-info">
@@ -1801,7 +1936,145 @@ function renderAdminEvents() {
         <button class="admin-act-btn admin-act-edit" onclick="openEventForm('${key}')">עריכה</button>
         <button class="admin-act-btn admin-act-del"  onclick="deleteAdminEvent('${key}')">מחק</button>
       </div>
-    </div>`).join('');
+    </div>`).join('') : '<div class="admin-empty">אין אירועים — לחץ "+ הוסף אירוע"</div>';
+  el.innerHTML = `<div class="admin-panel-header"><div class="admin-sec-title">אירועי החודש</div><button class="admin-add-btn" onclick="openEventForm(null)">+ הוסף אירוע</button></div>` + cards;
+}
+
+function renderAdminTabItems(type, raw, addLabel) {
+  const el = document.getElementById('admin-tab-content');
+  const titles = { soft: 'שתייה קלה', food: 'אוכל' };
+  const entries = Object.entries(raw).filter(([,v]) => v)
+    .sort(([,a],[,b]) => (a.order||0) - (b.order||0));
+  const cards = entries.length ? _adminItemCards(entries, type) : `<div class="admin-empty">אין פריטים — לחץ "${addLabel}"</div>`;
+  el.innerHTML = `<div class="admin-panel-header"><div class="admin-sec-title">${titles[type]}</div><button class="admin-add-btn" onclick="openItemForm('${type}',null)">${addLabel}</button></div>` + cards;
+}
+
+function renderAdminTabSpirits() {
+  const el = document.getElementById('admin-tab-content');
+  const entries = Object.entries(spiritsRaw).filter(([,v]) => v);
+  const byCat = {};
+  entries.forEach(([key, item]) => {
+    const cat = item.cat || 'כללי';
+    if (!byCat[cat]) byCat[cat] = [];
+    byCat[cat].push([key, item]);
+  });
+  let html = `<div class="admin-panel-header"><div class="admin-sec-title">שתייה חריפה</div><button class="admin-add-btn" onclick="openItemForm('spirits',null)">+ הוסף</button></div>`;
+  const catOrder = [...SPIRIT_CAT_LIST, ...Object.keys(byCat).filter(c => !SPIRIT_CAT_LIST.includes(c))];
+  catOrder.forEach(cat => {
+    if (!byCat[cat]?.length) return;
+    html += `<div class="admin-cat-title">${escHtml(cat)}</div>` + _adminItemCards(byCat[cat], 'spirits');
+  });
+  if (!entries.length) html += '<div class="admin-empty">אין פריטים</div>';
+  el.innerHTML = html;
+}
+
+function openItemForm(type, key) {
+  adminItemType = type;
+  adminItemKey = key;
+  const raw = type === 'soft' ? softRaw : type === 'food' ? foodRaw : spiritsRaw;
+  const item = key ? (raw[key] || {}) : {};
+  document.getElementById('aif-hdr').textContent = key ? 'עריכת פריט' : 'פריט חדש';
+  document.getElementById('aif-name').value    = item.name    || '';
+  document.getElementById('aif-desc').value    = item.desc    || '';
+  document.getElementById('aif-punches').value = item.punches ?? 1;
+  document.getElementById('aif-name-en').value = item.nameEn  || '';
+  document.getElementById('aif-isnew').checked  = item.isNew  || false;
+  document.getElementById('aif-hidden').checked = item.hidden || false;
+  const isSpirits = type === 'spirits';
+  document.getElementById('aif-cat-wrap').style.display    = isSpirits ? '' : 'none';
+  document.getElementById('aif-cat-en-wrap').style.display = isSpirits ? '' : 'none';
+  if (isSpirits) {
+    const select = document.getElementById('aif-cat');
+    select.innerHTML = SPIRIT_CAT_LIST.map(cat =>
+      `<option value="${escHtml(cat)}"${item.cat === cat ? ' selected' : ''}>${escHtml(cat)}</option>`
+    ).join('');
+    document.getElementById('aif-cat-en').value = item.catEn || '';
+  }
+  go('admin-item-form');
+}
+
+function saveItemForm() {
+  const name = document.getElementById('aif-name').value.trim();
+  if (!name) { alert('חובה להזין שם'); return; }
+  const type = adminItemType;
+  const raw = type === 'soft' ? softRaw : type === 'food' ? foodRaw : spiritsRaw;
+  const existingOrder = adminItemKey ? (raw[adminItemKey]?.order ?? Object.keys(raw).length) : Object.keys(raw).length;
+  const data = {
+    name,
+    nameEn:  document.getElementById('aif-name-en').value.trim(),
+    desc:    document.getElementById('aif-desc').value.trim(),
+    punches: parseInt(document.getElementById('aif-punches').value) || 0,
+    isNew:   document.getElementById('aif-isnew').checked,
+    hidden:  document.getElementById('aif-hidden').checked,
+    order:   existingOrder,
+  };
+  if (type === 'spirits') {
+    data.cat   = document.getElementById('aif-cat').value;
+    data.catEn = document.getElementById('aif-cat-en').value.trim() || (SPIRITS_EN[data.cat] || '');
+  }
+  const ref = adminItemKey ? db.ref(`menu_${type}/${adminItemKey}`) : db.ref(`menu_${type}`).push();
+  ref.set(data).then(() => back());
+}
+
+function deleteMenuItem(type, key) {
+  if (!confirm('למחוק את הפריט?')) return;
+  db.ref(`menu_${type}/${key}`).remove();
+}
+
+function initSoft() {
+  db.ref('menu_soft').on('value', snap => {
+    const raw = snap.val();
+    if (!raw) {
+      const batch = {};
+      SOFT.forEach((item, i) => { const k = db.ref('menu_soft').push().key; batch[k] = { ...item, order: i }; });
+      db.ref('menu_soft').set(batch);
+      return;
+    }
+    softRaw = raw;
+    softData = Object.values(raw).filter(v => v && !v.hidden).sort((a,b) => (a.order||0) - (b.order||0));
+    renderSoft();
+    if (adminTab === 'soft') renderAdminTabContent();
+  });
+}
+
+function initFood() {
+  db.ref('menu_food').on('value', snap => {
+    const raw = snap.val();
+    if (!raw) {
+      const batch = {};
+      FOOD.forEach((item, i) => { const k = db.ref('menu_food').push().key; batch[k] = { ...item, order: i }; });
+      db.ref('menu_food').set(batch);
+      return;
+    }
+    foodRaw = raw;
+    foodData = Object.values(raw).filter(v => v && !v.hidden).sort((a,b) => (a.order||0) - (b.order||0));
+    renderFood();
+    if (adminTab === 'food') renderAdminTabContent();
+  });
+}
+
+function initSpirits() {
+  db.ref('menu_spirits').on('value', snap => {
+    const raw = snap.val();
+    if (!raw) {
+      const batch = {};
+      for (const [cat, items] of Object.entries(SPIRITS)) {
+        const catEn = SPIRITS_EN[cat] || '';
+        items.forEach((item, i) => { const k = db.ref('menu_spirits').push().key; batch[k] = { ...item, cat, catEn, order: i }; });
+      }
+      db.ref('menu_spirits').set(batch);
+      return;
+    }
+    spiritsRaw = raw;
+    spiritsGrouped = {};
+    Object.values(raw).filter(v => v && !v.hidden).forEach(item => {
+      const cat = item.cat || 'כללי';
+      if (!spiritsGrouped[cat]) spiritsGrouped[cat] = [];
+      spiritsGrouped[cat].push(item);
+    });
+    renderSpirits();
+    if (adminTab === 'spirits') renderAdminTabContent();
+  });
 }
 
 function openEventForm(key) {
@@ -1855,6 +2128,9 @@ renderAll();
 initBadges();
 loadFeedbacks();
 initEvents();
+initSoft();
+initFood();
+initSpirits();
 </script>
 </body>
 </html>
