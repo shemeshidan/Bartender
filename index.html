@@ -855,6 +855,112 @@ t<!DOCTYPE html>
     .feedback-item-time { font-size: 10px; color: rgba(238,224,188,.3); }
     .feedback-item-text { font-size: 13px; color: rgba(238,224,188,.8); line-height: 1.55; }
     .feedback-empty { text-align: center; color: rgba(238,224,188,.3); font-size: 13px; padding: 20px 0; }
+
+    /* ─── ADMIN ──────────────────────────────────────────── */
+    .admin-login-center {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: calc(100svh - 60px);
+      padding: 32px 24px; gap: 16px;
+    }
+    .admin-login-icon { font-size: 52px; }
+    .admin-login-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 3px; color: var(--gold);
+    }
+    .admin-login-sub { font-size: 12px; color: rgba(238,224,188,.4); margin-bottom: 8px; }
+    .admin-pass-input {
+      width: 100%; max-width: 260px;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(200,148,26,.3); border-radius: 12px;
+      padding: 13px 16px; font-family: 'Heebo', sans-serif;
+      font-size: 20px; color: var(--text);
+      text-align: center; letter-spacing: 4px; outline: none;
+    }
+    .admin-pass-input:focus { border-color: var(--gold); }
+    .admin-login-err { font-size: 13px; color: #E05555; min-height: 18px; }
+    .admin-primary-btn {
+      width: 100%; max-width: 260px;
+      background: var(--gold); color: var(--ink);
+      border: none; border-radius: 12px;
+      padding: 14px; font-family: 'Heebo', sans-serif;
+      font-size: 16px; font-weight: 900; cursor: pointer;
+      transition: transform .15s, background .15s;
+    }
+    .admin-primary-btn:active { transform: scale(.96); background: var(--gold2); }
+    .admin-panel-header {
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 16px 16px 10px;
+    }
+    .admin-sec-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px; color: var(--gold);
+    }
+    .admin-add-btn {
+      background: var(--gold); color: var(--ink);
+      border: none; border-radius: 10px;
+      padding: 8px 16px; font-family: 'Heebo', sans-serif;
+      font-size: 14px; font-weight: 900; cursor: pointer;
+    }
+    .admin-ev-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(200,148,26,.15);
+      border-radius: 14px; margin: 0 12px 12px;
+      padding: 12px; display: flex; align-items: flex-start; gap: 10px;
+    }
+    .admin-ev-emoji { font-size: 26px; flex-shrink: 0; line-height: 1; padding-top: 2px; }
+    .admin-ev-info { flex: 1; min-width: 0; }
+    .admin-ev-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .admin-ev-date  { font-size: 11px; color: var(--copper); margin-bottom: 3px; }
+    .admin-ev-desc  { font-size: 11px; color: rgba(238,224,188,.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-ev-btns  { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .admin-act-btn  { border: none; border-radius: 8px; padding: 6px 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'Heebo', sans-serif; }
+    .admin-act-edit { background: rgba(200,148,26,.18); color: var(--gold); }
+    .admin-act-del  { background: rgba(139,26,26,.2); color: #E05555; }
+    .admin-empty    { text-align: center; padding: 40px 20px; font-size: 14px; color: rgba(238,224,188,.35); line-height: 1.8; }
+    .admin-form-wrap { padding: 8px 16px 40px; display: flex; flex-direction: column; gap: 12px; }
+    .admin-field-grp {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(200,148,26,.1);
+      border-radius: 12px; padding: 12px;
+    }
+    .admin-grp-lbl {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px;
+      color: rgba(238,224,188,.3); text-transform: uppercase; margin-bottom: 10px;
+    }
+    .admin-lbl { font-size: 11px; font-weight: 700; color: var(--copper); letter-spacing: .4px; margin-bottom: 4px; display: block; }
+    .admin-inp, .admin-ta {
+      width: 100%; background: rgba(255,255,255,.05);
+      border: 1.5px solid rgba(200,148,26,.2); border-radius: 10px;
+      padding: 10px 12px; font-family: 'Heebo', sans-serif;
+      font-size: 14px; color: var(--text); outline: none;
+      direction: rtl; box-sizing: border-box;
+    }
+    .admin-inp:focus, .admin-ta:focus { border-color: rgba(200,148,26,.65); }
+    .admin-inp::placeholder, .admin-ta::placeholder { color: rgba(238,224,188,.22); }
+    .admin-ta { resize: none; min-height: 68px; }
+    .admin-mb { margin-bottom: 10px; }
+    .admin-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .admin-toggle-lbl { font-size: 14px; color: var(--text); }
+    .admin-toggle {
+      width: 44px; height: 26px; appearance: none; -webkit-appearance: none;
+      background: rgba(255,255,255,.15); border-radius: 13px;
+      position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0;
+    }
+    .admin-toggle:checked { background: var(--gold); }
+    .admin-toggle::after {
+      content: ''; position: absolute;
+      width: 20px; height: 20px; border-radius: 50%; background: white;
+      top: 3px; right: 3px; transition: right .2s;
+    }
+    .admin-toggle:checked::after { right: 21px; }
+    .admin-save-btn {
+      width: 100%; background: var(--gold); color: var(--ink);
+      border: none; border-radius: 12px; padding: 15px;
+      font-family: 'Heebo', sans-serif; font-size: 16px; font-weight: 900;
+      cursor: pointer; transition: transform .15s, background .15s; margin-top: 4px;
+    }
+    .admin-save-btn:active { transform: scale(.96); background: var(--gold2); }
   </style>
 </head>
 <body>
@@ -925,7 +1031,7 @@ t<!DOCTYPE html>
       </div>
 
       <div class="pub-logo-wrap">
-        <img src="publogo.jpg" alt="Bartender" class="pub-logo-img">
+        <img src="publogo.jpg" alt="Bartender" class="pub-logo-img" onclick="handleAdminTap()">
         <div class="lang-toggle">
           <button class="lang-btn active" id="btn-he" onclick="setLang('he')">עב</button>
           <button class="lang-btn"        id="btn-en" onclick="setLang('en')">EN</button>
@@ -1060,6 +1166,93 @@ t<!DOCTYPE html>
       </div>
       <div class="feedback-divider" id="fb-all-title">כל הפידבקים</div>
       <div id="feedback-list"></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════ ADMIN LOGIN ══════════════════ -->
+  <div id="admin-login" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title">ניהול</div>
+      <span class="hdr-icon">🔐</span>
+    </div>
+    <div class="admin-login-center">
+      <div class="admin-login-icon">🍸</div>
+      <div class="admin-login-title">ADMIN PANEL</div>
+      <div class="admin-login-sub">הזן סיסמה להמשך</div>
+      <input type="password" class="admin-pass-input" id="admin-pass-input"
+        placeholder="••••••" onkeydown="if(event.key==='Enter')checkAdminPass()">
+      <div class="admin-login-err" id="admin-err"></div>
+      <button class="admin-primary-btn" onclick="checkAdminPass()">כניסה</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ ADMIN PANEL ══════════════════ -->
+  <div id="admin" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title">ניהול אירועים</div>
+      <span class="hdr-icon">🎉</span>
+    </div>
+    <div class="content" style="padding-top:6px;">
+      <div class="admin-panel-header">
+        <div class="admin-sec-title">אירועי החודש</div>
+        <button class="admin-add-btn" onclick="openEventForm(null)">+ הוסף אירוע</button>
+      </div>
+      <div id="admin-events-list"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ ADMIN FORM ══════════════════ -->
+  <div id="admin-form" class="screen">
+    <div class="screen-hdr">
+      <div class="back-btn" onclick="back()">‹</div>
+      <div class="hdr-title" id="admin-form-hdr-title">אירוע חדש</div>
+      <span class="hdr-icon">✏️</span>
+    </div>
+    <div class="admin-form-wrap">
+      <div class="admin-field-grp">
+        <div class="admin-grp-lbl">עברית</div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <div style="width:72px;flex-shrink:0;">
+            <label class="admin-lbl">אמוג'י</label>
+            <input class="admin-inp" id="aef-emoji" type="text" placeholder="🎉" style="text-align:center;font-size:20px;padding:8px;">
+          </div>
+          <div style="flex:1;">
+            <label class="admin-lbl">כותרת *</label>
+            <input class="admin-inp" id="aef-title" type="text" placeholder="ערב מוזיקה חיה">
+          </div>
+        </div>
+        <label class="admin-lbl">תאריך</label>
+        <input class="admin-inp admin-mb" id="aef-date" type="text" placeholder="שישי, 14 מרץ 2026">
+        <label class="admin-lbl">תיאור</label>
+        <textarea class="admin-ta admin-mb" id="aef-desc" placeholder="פרטים על האירוע..."></textarea>
+        <label class="admin-lbl">תגית</label>
+        <input class="admin-inp" id="aef-tag" type="text" placeholder="🎸 מוזיקה חיה">
+      </div>
+      <div class="admin-field-grp">
+        <div class="admin-grp-lbl">English (optional)</div>
+        <label class="admin-lbl">Title</label>
+        <input class="admin-inp admin-mb" id="aef-title-en" type="text" placeholder="Live Music Night" style="direction:ltr;">
+        <label class="admin-lbl">Date</label>
+        <input class="admin-inp admin-mb" id="aef-date-en" type="text" placeholder="Friday, March 14, 2026" style="direction:ltr;">
+        <label class="admin-lbl">Description</label>
+        <textarea class="admin-ta admin-mb" id="aef-desc-en" placeholder="Event details..." style="direction:ltr;"></textarea>
+        <label class="admin-lbl">Tag</label>
+        <input class="admin-inp" id="aef-tag-en" type="text" placeholder="🎸 Live Music" style="direction:ltr;">
+      </div>
+      <div class="admin-field-grp">
+        <div class="admin-toggle-row" style="margin-bottom:12px;">
+          <span class="admin-toggle-lbl">חדש ✦ (badge)</span>
+          <input type="checkbox" class="admin-toggle" id="aef-isnew">
+        </div>
+        <div class="admin-toggle-row">
+          <span class="admin-toggle-lbl">מוסתר (לא מוצג)</span>
+          <input type="checkbox" class="admin-toggle" id="aef-hidden">
+        </div>
+      </div>
+      <button class="admin-save-btn" onclick="saveEventForm()">💾 שמור אירוע</button>
     </div>
   </div>
 
@@ -1285,6 +1478,14 @@ function go(id) {
     if (dot) dot.style.display = 'none';
   }
 
+  if (id === 'events') {
+    localStorage.setItem('btdr_ev_seen_ts', String(Date.now()));
+    const dot = document.getElementById('badge-events-dot');
+    if (dot) dot.style.display = 'none';
+    seen['events'] = true;
+    localStorage.setItem('btdr_seen', JSON.stringify(seen));
+  }
+
   if (!seen[id]) {
     seen[id] = true;
     localStorage.setItem('btdr_seen', JSON.stringify(seen));
@@ -1294,12 +1495,11 @@ function go(id) {
 }
 
 function back() {
-  const active = document.querySelector('.screen.active:not(#home)');
+  const actives = document.querySelectorAll('.screen.active:not(#home)');
+  const active = actives[actives.length - 1];
   if (!active) return;
   active.classList.add('exiting');
-  setTimeout(() => {
-    active.classList.remove('active', 'exiting');
-  }, 430);
+  setTimeout(() => { active.classList.remove('active', 'exiting'); }, 430);
 }
 
 // ═══════════════════ LIKES ═══════════════════
@@ -1373,9 +1573,52 @@ function renderSpecial() {
     SPECIALS.map(itemHTML).join('');
 }
 
+let eventsData = []; // loaded from Firebase
+
 function renderEvents() {
-  document.getElementById('events-content').innerHTML =
-    `<div class="feedback-empty" style="padding:40px 20px;font-size:15px;color:var(--text);">🎉 כאן נפרסם את האירועים המיוחדים שלנו — שווה לעקוב!</div>`;
+  const content = document.getElementById('events-content');
+  if (!content) return;
+  if (!eventsData.length) {
+    content.innerHTML = `<div class="feedback-empty" style="padding:40px 20px;font-size:15px;color:var(--text);">🎉 כאן נפרסם את האירועים המיוחדים שלנו — שווה לעקוב!</div>`;
+    return;
+  }
+  content.innerHTML = eventsData.map(ev => `
+    <div class="event-card">
+      <div class="event-img">${escHtml(ev.emoji || '🎉')}</div>
+      <div class="event-body">
+        <div class="event-date">${escHtml((lang==='en' && ev.dateEn) ? ev.dateEn : (ev.date || ''))}</div>
+        <div class="event-title">${escHtml((lang==='en' && ev.titleEn) ? ev.titleEn : (ev.title || ''))}</div>
+        ${((lang==='en' && ev.descEn) || ev.desc) ? `<div class="event-desc">${escHtml((lang==='en' && ev.descEn) ? ev.descEn : ev.desc)}</div>` : ''}
+        <div class="event-footer">
+          ${((lang==='en' && ev.tagEn) || ev.tag) ? `<div class="event-tag">${escHtml((lang==='en' && ev.tagEn) ? ev.tagEn : ev.tag)}</div>` : ''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function initEvents() {
+  db.ref('events').on('value', snap => {
+    const raw = snap.val();
+    if (!raw) {
+      // seed from data.js if Firebase is empty
+      const batch = {};
+      EVENTS.forEach(ev => {
+        const key = db.ref('events').push().key;
+        batch[key] = { ...ev, ts: Date.now() };
+      });
+      db.ref('events').set(batch);
+      return;
+    }
+    fbEventsRaw = raw;
+    eventsData = Object.values(raw).filter(v => v && !v.hidden);
+    renderEvents();
+    renderAdminEvents();
+    // badge
+    const lastSeen = parseInt(localStorage.getItem('btdr_ev_seen_ts') || '0');
+    const hasnew = eventsData.some(ev => ev.isNew || (ev.ts && ev.ts > lastSeen));
+    const dot = document.getElementById('badge-events-dot');
+    if (dot && !seen['events']) dot.style.display = hasnew ? '' : 'none';
+  });
 }
 
 function renderFood() {
@@ -1495,7 +1738,6 @@ function renderAll() {
 function initBadges() {
   const checks = {
     special: [...SPECIALS].some(i => i.isNew),
-    events:  EVENTS.some(i => i.isNew),
     spirits: Object.values(SPIRITS).flat().some(i => i.isNew),
   };
   for (const [key, hasNew] of Object.entries(checks)) {
@@ -1504,6 +1746,107 @@ function initBadges() {
       if (dot) dot.style.display = '';
     }
   }
+  // events badge handled in initEvents()
+}
+
+// ═══════════════════ ADMIN ═══════════════════
+
+const ADMIN_PASS = 'BAR2026';
+let adminTaps = 0, adminTapTimer = null;
+let adminEditKey = null;
+let fbEventsRaw = {};
+
+function handleAdminTap() {
+  adminTaps++;
+  clearTimeout(adminTapTimer);
+  if (adminTaps >= 5) {
+    adminTaps = 0;
+    document.getElementById('admin-pass-input').value = '';
+    document.getElementById('admin-err').textContent = '';
+    go('admin-login');
+  } else {
+    adminTapTimer = setTimeout(() => { adminTaps = 0; }, 1500);
+  }
+}
+
+function checkAdminPass() {
+  const val = document.getElementById('admin-pass-input').value;
+  if (val === ADMIN_PASS) {
+    document.getElementById('admin-err').textContent = '';
+    back();
+    setTimeout(() => { go('admin'); renderAdminEvents(); }, 50);
+  } else {
+    document.getElementById('admin-err').textContent = 'סיסמה שגויה ✗';
+    document.getElementById('admin-pass-input').value = '';
+  }
+}
+
+function renderAdminEvents() {
+  const list = document.getElementById('admin-events-list');
+  if (!list) return;
+  const entries = Object.entries(fbEventsRaw).filter(([,v]) => v);
+  if (!entries.length) {
+    list.innerHTML = '<div class="admin-empty">אין אירועים עדיין.<br>לחץ "+ הוסף אירוע" ליצירה</div>';
+    return;
+  }
+  list.innerHTML = entries.map(([key, ev]) => `
+    <div class="admin-ev-card" style="${ev.hidden ? 'opacity:.42' : ''}">
+      <div class="admin-ev-emoji">${escHtml(ev.emoji || '🎉')}</div>
+      <div class="admin-ev-info">
+        <div class="admin-ev-title">${escHtml(ev.title || '')}${ev.isNew ? ' <span style="color:var(--gold);font-size:10px;">✦</span>' : ''}${ev.hidden ? ' <span style="color:#888;font-size:10px;">מוסתר</span>' : ''}</div>
+        <div class="admin-ev-date">${escHtml(ev.date || '')}</div>
+        <div class="admin-ev-desc">${escHtml(ev.desc || '')}</div>
+      </div>
+      <div class="admin-ev-btns">
+        <button class="admin-act-btn admin-act-edit" onclick="openEventForm('${key}')">עריכה</button>
+        <button class="admin-act-btn admin-act-del"  onclick="deleteAdminEvent('${key}')">מחק</button>
+      </div>
+    </div>`).join('');
+}
+
+function openEventForm(key) {
+  adminEditKey = key;
+  document.getElementById('admin-form-hdr-title').textContent = key ? 'עריכת אירוע' : 'אירוע חדש';
+  const ev = key ? (fbEventsRaw[key] || {}) : {};
+  document.getElementById('aef-emoji').value    = ev.emoji    || '';
+  document.getElementById('aef-title').value    = ev.title    || '';
+  document.getElementById('aef-date').value     = ev.date     || '';
+  document.getElementById('aef-desc').value     = ev.desc     || '';
+  document.getElementById('aef-tag').value      = ev.tag      || '';
+  document.getElementById('aef-title-en').value = ev.titleEn  || '';
+  document.getElementById('aef-date-en').value  = ev.dateEn   || '';
+  document.getElementById('aef-desc-en').value  = ev.descEn   || '';
+  document.getElementById('aef-tag-en').value   = ev.tagEn    || '';
+  document.getElementById('aef-isnew').checked  = ev.isNew    || false;
+  document.getElementById('aef-hidden').checked = ev.hidden   || false;
+  go('admin-form');
+}
+
+function saveEventForm() {
+  const title = document.getElementById('aef-title').value.trim();
+  if (!title) { alert('חובה להזין כותרת'); return; }
+  const existingTs = adminEditKey ? (fbEventsRaw[adminEditKey]?.ts || Date.now()) : Date.now();
+  const data = {
+    emoji:   document.getElementById('aef-emoji').value.trim()    || '🎉',
+    title,
+    date:    document.getElementById('aef-date').value.trim(),
+    desc:    document.getElementById('aef-desc').value.trim(),
+    tag:     document.getElementById('aef-tag').value.trim(),
+    titleEn: document.getElementById('aef-title-en').value.trim(),
+    dateEn:  document.getElementById('aef-date-en').value.trim(),
+    descEn:  document.getElementById('aef-desc-en').value.trim(),
+    tagEn:   document.getElementById('aef-tag-en').value.trim(),
+    isNew:   document.getElementById('aef-isnew').checked,
+    hidden:  document.getElementById('aef-hidden').checked,
+    ts:      existingTs,
+  };
+  const ref = adminEditKey ? db.ref('events/' + adminEditKey) : db.ref('events').push();
+  ref.set(data).then(() => back());
+}
+
+function deleteAdminEvent(key) {
+  if (!confirm('למחוק את האירוע?')) return;
+  db.ref('events/' + key).remove();
 }
 
 // ═══════════════════ INIT ═══════════════════
@@ -1511,6 +1854,7 @@ updateStaticText();
 renderAll();
 initBadges();
 loadFeedbacks();
+initEvents();
 </script>
 </body>
 </html>
