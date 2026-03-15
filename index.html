@@ -909,7 +909,8 @@ t<!DOCTYPE html>
           <img src="card front side.jpg" alt="כרטיסיה" style="width:52px;height:auto;border-radius:6px;object-fit:cover;">
           <span class="nav-label" id="nl-payment">רכישת כרטיסיה</span>
         </div>
-        <div class="nav-card wide" onclick="go('feedback')">
+        <div class="nav-card wide" id="badge-feedback" onclick="go('feedback')">
+          <span class="badge" id="badge-feedback-dot" style="display:none">חדש ✦</span>
           <span class="nav-icon">💬</span>
           <span class="nav-label" id="nl-feedback">פידבקים מהתושבים</span>
         </div>
@@ -1277,7 +1278,12 @@ function go(id) {
   el.classList.add('active');
   el.scrollTop = 0;
 
-  if (id === 'feedback') loadFeedbacks();
+  if (id === 'feedback') {
+    loadFeedbacks();
+    localStorage.setItem('btdr_fb_seen_ts', String(Date.now()));
+    const dot = document.getElementById('badge-feedback-dot');
+    if (dot) dot.style.display = 'none';
+  }
 
   if (!seen[id]) {
     seen[id] = true;
@@ -1391,6 +1397,12 @@ function loadFeedbacks() {
     if (newFbs.length >= FEEDBACKS.length) {
       FEEDBACKS = newFbs;
       renderFeedback();
+    }
+    if (newFbs.length > 0) {
+      const lastSeenTs = parseInt(localStorage.getItem('btdr_fb_seen_ts') || '0');
+      const newestTs = newFbs[0].ts || 0;
+      const dot = document.getElementById('badge-feedback-dot');
+      if (dot) dot.style.display = newestTs > lastSeenTs ? '' : 'none';
     }
   });
 }
