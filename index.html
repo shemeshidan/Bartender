@@ -961,6 +961,10 @@ t<!DOCTYPE html>
       cursor: pointer; transition: transform .15s, background .15s; margin-top: 4px;
     }
     .admin-save-btn:active { transform: scale(.96); background: var(--gold2); }
+    .admin-visit-row {
+      padding: 8px 16px; font-size: 12px; color: rgba(238,224,188,.5);
+      border-bottom: 1px solid rgba(200,148,26,.12); text-align: center;
+    }
     .admin-tabs {
       display: flex; border-bottom: 1px solid rgba(200,148,26,.15);
     }
@@ -1226,6 +1230,9 @@ t<!DOCTYPE html>
       <span class="hdr-icon">⚙️</span>
     </div>
     <div style="display:flex;flex-direction:column;height:calc(100svh - 60px);">
+      <div class="admin-visit-row">
+        👁 כניסות לאתר: <span id="visit-count" style="color:var(--gold);font-weight:700;">…</span>
+      </div>
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="switchAdminTab('events')"  id="tab-events">🎉<br>אירועים</button>
         <button class="admin-tab"        onclick="switchAdminTab('spirits')" id="tab-spirits">🥃<br>חריפה</button>
@@ -2121,6 +2128,23 @@ function deleteAdminEvent(key) {
   if (!confirm('למחוק את האירוע?')) return;
   db.ref('events/' + key).remove();
 }
+
+// ═══════════════════ VISITOR COUNTER ═══════════════════
+(function initVisitCounter() {
+  if (location.search.includes('owner')) {
+    localStorage.setItem('btdr_owner', '1');
+    history.replaceState(null, '', location.pathname);
+  }
+  const isOwner = !!localStorage.getItem('btdr_owner');
+  if (!isOwner) {
+    db.ref('visits').transaction(v => (v || 0) + 1);
+  }
+  // Always show counter in admin panel (only admin sees it anyway)
+  db.ref('visits').on('value', snap => {
+    const el = document.getElementById('visit-count');
+    if (el) el.textContent = (snap.val() || 0).toLocaleString();
+  });
+})();
 
 // ═══════════════════ INIT ═══════════════════
 updateStaticText();
