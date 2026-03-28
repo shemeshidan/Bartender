@@ -248,6 +248,29 @@ t<!DOCTYPE html>
       -webkit-tap-highlight-color: transparent;
     }
     .gallery-img-wrap { position: relative; }
+    .gallery-img-footer {
+      display: flex; justify-content: flex-end;
+      padding: 8px 10px 6px;
+      background: rgba(0,0,0,.25);
+    }
+    .gallery-like-btn {
+      background: transparent;
+      border: 1px solid rgba(238,224,188,.18);
+      border-radius: 20px;
+      color: rgba(238,224,188,.6);
+      font-size: 13px; padding: 4px 10px;
+      cursor: pointer; display: flex; align-items: center; gap: 5px;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .gallery-like-btn.liked {
+      border-color: rgba(200,50,50,.5);
+      color: rgba(220,80,80,.9);
+      background: rgba(200,50,50,.08);
+    }
+    .gallery-like-btn:active { transform: scale(0.87); }
+    .gallery-like-heart { font-size: 13px; transition: transform 0.2s; }
+    .gallery-like-btn.liked .gallery-like-heart { transform: scale(1.2); }
 
     .nav-icon { font-size: 30px; line-height: 1; }
     .nav-label {
@@ -1444,8 +1467,10 @@ const db = firebase.database();
 
 const myLikes    = JSON.parse(localStorage.getItem('btdr_likes') || '{}');
 const likeCounts = {};
-const myFbLikes  = JSON.parse(localStorage.getItem('btdr_fb_likes') || '{}');
-const fbLikeCounts = {};
+const myFbLikes      = JSON.parse(localStorage.getItem('btdr_fb_likes')  || '{}');
+const fbLikeCounts   = {};
+const myGalleryLikes = JSON.parse(localStorage.getItem('btdr_gl_likes')  || '{}');
+const galleryLikeCounts = {};
 let   FEEDBACKS  = [];
 const seen  = JSON.parse(localStorage.getItem('btdr_seen')  || '{}');
 let lang    = localStorage.getItem('btdr_lang') || 'he';
@@ -1812,18 +1837,30 @@ const CLOUDINARY_PRESET = 'iwiacmty';
 function loadGalleryPhotos() {
   const container = document.getElementById('gallery-firebase-photos');
   container.innerHTML = '';
-  db.ref('galleryPhotos').once('value').then(snap => {
-    const data = snap.val();
-    if (!data) return;
-    const entries = Object.entries(data).reverse(); // newest first
-    entries.forEach(([key, item]) => {
-      const wrap = document.createElement('div');
-      wrap.className = 'gallery-img-wrap';
-      wrap.dataset.key = key;
-      wrap.innerHTML = `
-        <img src="${item.url}" alt="Bartender" class="gallery-img">
-        <button class="gallery-img-delete" onclick="deleteGalleryPhoto(this)" title="מחק תמונה">✕</button>`;
-      container.appendChild(wrap);
+  db.ref('galleryLikes').once('value').then(likesSnap => {
+    const likesData = likesSnap.val() || {};
+    Object.keys(likesData).forEach(k => { galleryLikeCounts[k] = likesData[k]; });
+    db.ref('galleryPhotos').once('value').then(snap => {
+      const data = snap.val();
+      if (!data) return;
+      const entries = Object.entries(data).reverse(); // newest first
+      entries.forEach(([key, item]) => {
+        const liked = !!myGalleryLikes[key];
+        const cnt = galleryLikeCounts[key] || 0;
+        const wrap = document.createElement('div');
+        wrap.className = 'gallery-img-wrap';
+        wrap.dataset.key = key;
+        wrap.innerHTML = `
+          <img src="${item.url}" alt="Bartender" class="gallery-img">
+          <button class="gallery-img-delete" onclick="deleteGalleryPhoto(this)" title="מחק תמונה">✕</button>
+          <div class="gallery-img-footer">
+            <button class="gallery-like-btn${liked ? ' liked' : ''}" onclick="toggleGalleryLike('${key}',this)">
+              <span class="gallery-like-heart">${liked ? '❤️' : '🤍'}</span>
+              <span class="gallery-like-count">${cnt > 0 ? cnt : ''}</span>
+            </button>
+          </div>`;
+        container.appendChild(wrap);
+      });
     });
   });
 }
@@ -1871,6 +1908,23 @@ function uploadGalleryPhoto(input) {
   };
 
   xhr.send(formData);
+}
+
+function toggleGalleryLike(k, btn) {
+  const isLiked = !!myGalleryLikes[k];
+  const newLiked = !isLiked;
+  myGalleryLikes[k] = newLiked;
+  localStorage.setItem('btdr_gl_likes', JSON.stringify(myGalleryLikes));
+
+  const heart = btn.querySelector('.gallery-like-heart');
+  const count = btn.querySelector('.gallery-like-count');
+  btn.classList.toggle('liked', newLiked);
+  heart.textContent = newLiked ? '❤️' : '🤍';
+
+  const delta = newLiked ? 1 : -1;
+  db.ref('galleryLikes/' + k).transaction(cur => Math.max(0, (cur || 0) + delta));
+  galleryLikeCounts[k] = Math.max(0, (galleryLikeCounts[k] || 0) + delta);
+  count.textContent = galleryLikeCounts[k] > 0 ? galleryLikeCounts[k] : '';
 }
 
 function deleteGalleryPhoto(btn) {
