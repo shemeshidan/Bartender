@@ -213,6 +213,41 @@ t<!DOCTYPE html>
       box-shadow: 0 6px 24px rgba(0,0,0,.55);
     }
     .gallery-img { width: 100%; height: auto; display: block; }
+    .gallery-upload-area { margin-bottom: 18px; }
+    .gallery-upload-btn {
+      width: 100%;
+      background: transparent;
+      border: 2px dashed rgba(200,148,26,.5);
+      color: var(--gold);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 2px;
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .gallery-upload-btn:active { background: rgba(200,148,26,.08); border-color: var(--gold); }
+    .gallery-upload-status {
+      text-align: center;
+      font-size: 12px;
+      color: rgba(238,224,188,.5);
+      margin-top: 8px;
+      min-height: 16px;
+    }
+    .gallery-upload-status.uploading { color: var(--gold); }
+    .gallery-upload-status.done { color: #6dbf6d; }
+    .gallery-upload-status.err { color: #e05c5c; }
+    .gallery-img-delete {
+      position: absolute; top: 8px; left: 8px;
+      background: rgba(0,0,0,.55); border: none;
+      color: rgba(238,224,188,.7); border-radius: 50%;
+      width: 28px; height: 28px; font-size: 14px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .gallery-img-wrap { position: relative; }
 
     .nav-icon { font-size: 30px; line-height: 1; }
     .nav-label {
@@ -1191,6 +1226,14 @@ t<!DOCTYPE html>
       <span class="hdr-icon">📸</span>
     </div>
     <div class="gallery-wrap">
+      <div class="gallery-upload-area">
+        <input type="file" id="gallery-file-input" accept="image/*" style="display:none" onchange="uploadGalleryPhoto(this)">
+        <button class="gallery-upload-btn" onclick="document.getElementById('gallery-file-input').click()">
+          📷 העלאת תמונה
+        </button>
+        <div class="gallery-upload-status" id="gallery-upload-status"></div>
+      </div>
+      <div id="gallery-firebase-photos"></div>
       <div class="gallery-img-wrap">
         <img src="photo1.jpg" alt="Bartender" class="gallery-img">
       </div>
@@ -1579,6 +1622,10 @@ function go(id) {
   el.classList.add('active');
   el.scrollTop = 0;
 
+  if (id === 'gallery') {
+    loadGalleryPhotos();
+  }
+
   if (id === 'feedback') {
     loadFeedbacks();
     localStorage.setItem('btdr_fb_seen_ts', String(Date.now()));
@@ -1755,6 +1802,85 @@ function renderFood() {
   if (!el) return;
   const items = foodData.length ? foodData : FOOD.filter(i => !i.hidden);
   el.innerHTML = `<div class="sec-title">${STRINGS[lang].foodSec}</div>` + items.map(itemHTML).join('');
+}
+
+// ═══════════════════ GALLERY UPLOAD ═══════════════════
+
+const CLOUDINARY_CLOUD = 'dhywo2tgs';
+const CLOUDINARY_PRESET = 'iwiacmty';
+
+function loadGalleryPhotos() {
+  const container = document.getElementById('gallery-firebase-photos');
+  container.innerHTML = '';
+  db.ref('galleryPhotos').once('value').then(snap => {
+    const data = snap.val();
+    if (!data) return;
+    const entries = Object.entries(data).reverse(); // newest first
+    entries.forEach(([key, item]) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'gallery-img-wrap';
+      wrap.dataset.key = key;
+      wrap.innerHTML = `
+        <img src="${item.url}" alt="Bartender" class="gallery-img">
+        <button class="gallery-img-delete" onclick="deleteGalleryPhoto(this)" title="מחק תמונה">✕</button>`;
+      container.appendChild(wrap);
+    });
+  });
+}
+
+function uploadGalleryPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('gallery-upload-status');
+  status.textContent = 'מעלה תמונה...';
+  status.className = 'gallery-upload-status uploading';
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`);
+
+  xhr.upload.onprogress = e => {
+    if (e.lengthComputable) {
+      const pct = Math.round(e.loaded / e.total * 100);
+      status.textContent = `מעלה... ${pct}%`;
+    }
+  };
+
+  xhr.onload = () => {
+    if (xhr.status === 200) {
+      const res = JSON.parse(xhr.responseText);
+      db.ref('galleryPhotos').push({ url: res.secure_url, ts: Date.now() }).then(() => {
+        status.textContent = '✓ התמונה הועלתה!';
+        status.className = 'gallery-upload-status done';
+        input.value = '';
+        setTimeout(() => { status.textContent = ''; status.className = 'gallery-upload-status'; }, 3000);
+        loadGalleryPhotos();
+      });
+    } else {
+      status.textContent = 'שגיאה בהעלאה — נסה שוב';
+      status.className = 'gallery-upload-status err';
+    }
+  };
+
+  xhr.onerror = () => {
+    status.textContent = 'שגיאה בהעלאה — נסה שוב';
+    status.className = 'gallery-upload-status err';
+  };
+
+  xhr.send(formData);
+}
+
+function deleteGalleryPhoto(btn) {
+  const wrap = btn.closest('.gallery-img-wrap');
+  const key = wrap.dataset.key;
+  if (!key) return;
+  if (!confirm('למחוק את התמונה?')) return;
+  db.ref('galleryPhotos/' + key).remove().then(() => {
+    wrap.remove();
+  }).catch(() => alert('שגיאה במחיקה'));
 }
 
 // ═══════════════════ FEEDBACK ═══════════════════
