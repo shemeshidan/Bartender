@@ -1962,18 +1962,19 @@ function loadFeedbacks() {
   });
 }
 
-// טעינת לבבות מ-Firebase
-db.ref('likes').once('value').then(snap => {
-  const data = snap.val() || {};
-  Object.keys(data).forEach(k => { likeCounts[k] = data[k]; });
-  renderAll();
-});
-
-// טעינת לבבות פידבקים מ-Firebase
-db.ref('feedbackLikes').once('value').then(snap => {
-  const data = snap.val() || {};
-  Object.keys(data).forEach(k => { fbLikeCounts[k] = data[k]; });
-  renderFeedback();
+// טעינת לבבות מ-Firebase — רק אחרי שה-Auth מוכן
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) return;
+  db.ref('likes').once('value').then(snap => {
+    const data = snap.val() || {};
+    Object.keys(data).forEach(k => { likeCounts[k] = data[k]; });
+    renderAll();
+  });
+  db.ref('feedbackLikes').once('value').then(snap => {
+    const data = snap.val() || {};
+    Object.keys(data).forEach(k => { fbLikeCounts[k] = data[k]; });
+    renderFeedback();
+  });
 });
 
 function toggleFbLike(k, btn) {
@@ -2380,13 +2381,15 @@ function deleteAdminEvent(key) {
     history.replaceState(null, '', location.pathname);
   }
   const isOwner = !!localStorage.getItem('btdr_owner');
-  if (!isOwner) {
-    db.ref('visits').transaction(v => (v || 0) + 1);
-  }
-  // Always show counter in admin panel (only admin sees it anyway)
-  db.ref('visits').on('value', snap => {
-    const el = document.getElementById('visit-count');
-    if (el) el.textContent = (snap.val() || 0).toLocaleString();
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) return;
+    if (!isOwner) {
+      db.ref('visits').transaction(v => (v || 0) + 1);
+    }
+    db.ref('visits').on('value', snap => {
+      const el = document.getElementById('visit-count');
+      if (el) el.textContent = (snap.val() || 0).toLocaleString();
+    });
   });
 })();
 
