@@ -1449,6 +1449,7 @@ const TEAM = [
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
 firebase.initializeApp({
   apiKey: "AIzaSyB-nUFuOifn3lEOxidWQWAQ-YP8Cgzgvjo",
@@ -1460,6 +1461,7 @@ firebase.initializeApp({
   appId: "1:519302139819:web:6492d96200228afa30ccee"
 });
 const db = firebase.database();
+firebase.auth().signInAnonymously().catch(e => console.warn('auth:', e));
 </script>
 
 <script>
