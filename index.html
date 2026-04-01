@@ -1854,7 +1854,7 @@ function loadGalleryPhotos() {
         wrap.dataset.key = key;
         wrap.innerHTML = `
           <img src="${item.url}" alt="Bartender" class="gallery-img">
-          <button class="gallery-img-delete" onclick="deleteGalleryPhoto(this)" title="מחק תמונה">✕</button>
+          ${adminLoggedIn ? '<button class="gallery-img-delete" onclick="deleteGalleryPhoto(this)" title="מחק תמונה">✕</button>' : ''}
           <div class="gallery-img-footer">
             <button class="gallery-like-btn${liked ? ' liked' : ''}" onclick="toggleGalleryLike('${key}',this)">
               <span class="gallery-like-heart">${liked ? '❤️' : '🤍'}</span>
@@ -2105,6 +2105,7 @@ function initBadges() {
 // ═══════════════════ ADMIN ═══════════════════
 
 const ADMIN_PASS = 'BAR2026';
+let adminLoggedIn = false;
 let adminTaps = 0, adminTapTimer = null;
 let adminEditKey = null;
 let fbEventsRaw = {};
@@ -2125,6 +2126,7 @@ function handleAdminTap() {
 function checkAdminPass() {
   const val = document.getElementById('admin-pass-input').value;
   if (val === ADMIN_PASS) {
+    adminLoggedIn = true;
     document.getElementById('admin-err').textContent = '';
     back();
     setTimeout(() => { go('admin'); switchAdminTab('events'); }, 50);
